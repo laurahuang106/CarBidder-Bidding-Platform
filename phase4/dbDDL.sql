@@ -105,8 +105,13 @@ CREATE TABLE VIOLATION_REPORTS (
     FOREIGN KEY (user_id) REFERENCES USERS(user_id)
 );
 
--- VIEW: Creating a view for USERS with a balance greater than 100
-CREATE VIEW HighBalanceUsers AS
-SELECT user_id, user_name, email, balance
+# VIEW: Show top 10 rating for normal user
+CREATE VIEW Top10RatedUsers AS
+SELECT
+    user_id,
+    user_name,
+    (seller_rating + buyer_rating) / 2 AS average_rating
 FROM USERS
-WHERE balance > 100;
+WHERE user_type = 'NORMAL_USER'
+ORDER BY average_rating DESC
+LIMIT 10;
