@@ -10,3 +10,6 @@ DROP TABLE IF EXISTS USERS;
 
 # Drop view if tables are exist
 DROP VIEW IF EXISTS Top10RatedUsers;
+
+-- Drop triggers if triggers are exist
+DROP TRIGGER IF EXISTS update_user_ratings;
