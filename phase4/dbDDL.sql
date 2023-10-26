@@ -104,3 +104,44 @@ CREATE TABLE VIOLATION_REPORTS (
     report_content VARCHAR(3000) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES USERS(user_id)
 );
+
+
+DELIMITER //
+
+CREATE TRIGGER update_user_ratings
+AFTER INSERT ON RATINGS
+FOR EACH ROW
+BEGIN
+    -- Update seller's ratings and count
+    UPDATE USERS
+    SET
+        seller_rating = (
+            SELECT AVG(seller_rate_from_winner)
+            FROM RATINGS
+            WHERE seller_id = NEW.seller_id
+        ),
+        num_of_seller_rating = (
+            SELECT COUNT(*)
+            FROM RATINGS
+            WHERE seller_id = NEW.seller_id
+        )
+    WHERE user_id = NEW.seller_id;
+
+    -- Update winner's ratings and count
+    UPDATE USERS
+    SET
+        buyer_rating = (
+            SELECT AVG(winner_rate_from_seller)
+            FROM RATINGS
+            WHERE winner_id = NEW.winner_id
+        ),
+        num_of_buyer_rating = (
+            SELECT COUNT(*)
+            FROM RATINGS
+            WHERE winner_id = NEW.winner_id
+        )
+    WHERE user_id = NEW.winner_id;
+END;
+//
+
+DELIMITER ;
