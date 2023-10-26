@@ -105,6 +105,18 @@ CREATE TABLE VIOLATION_REPORTS (
     FOREIGN KEY (user_id) REFERENCES USERS(user_id)
 );
 
+# VIEW: Show top 10 rating for normal user
+CREATE VIEW Top10RatedUsers AS
+SELECT
+    user_id,
+    user_name,
+    (seller_rating + buyer_rating) / 2 AS average_rating
+FROM USERS
+WHERE user_type = 'NORMAL_USER'
+ORDER BY average_rating DESC
+LIMIT 10;
+
+
 
 DELIMITER //
 
