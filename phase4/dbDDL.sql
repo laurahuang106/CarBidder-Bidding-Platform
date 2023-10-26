@@ -104,3 +104,9 @@ CREATE TABLE VIOLATION_REPORTS (
     report_content VARCHAR(3000) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES USERS(user_id)
 );
+
+-- VIEW: Creating a view for USERS with a balance greater than 100
+CREATE VIEW HighBalanceUsers AS
+SELECT user_id, user_name, email, balance
+FROM USERS
+WHERE balance > 100;
