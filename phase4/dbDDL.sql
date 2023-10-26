@@ -61,3 +61,46 @@ CREATE TABLE RATINGS (
     FOREIGN KEY (seller_id) REFERENCES USERS(user_id),
     FOREIGN KEY (winner_id) REFERENCES USERS(user_id)
 );
+
+CREATE TABLE VEHICLE_ORDERS (
+    order_id INT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    buyer_id INT NOT NULL,
+    seller_id INT NOT NULL,
+    order_price INT NOT NULL,
+    order_date DATETIME NOT NULL,
+    tracking_number INT,
+    is_paid BIT DEFAULT 0 NOT NULL,
+    is_shipped BIT DEFAULT 0 NOT NULL,
+    FOREIGN KEY (listing_id) REFERENCES LISTED_VEHICLES(listing_id),
+    FOREIGN KEY (buyer_id) REFERENCES BIDDINGS(user_id),
+    FOREIGN KEY (seller_id) REFERENCES LISTED_VEHICLES(seller_id)
+);
+
+CREATE TABLE CHATS (
+    chat_id INT PRIMARY KEY NOT NULL,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    message VARCHAR(200) NOT NULL,
+    date DATETIME NOT NULL,
+    listing_id INT NOT NULL,
+    FOREIGN KEY (sender_id) REFERENCES USERS(user_id),
+    FOREIGN KEY (receiver_id) REFERENCES USERS(user_id),
+    FOREIGN KEY (listing_id) REFERENCES LISTED_VEHICLES(listing_id)
+);
+
+CREATE TABLE BALANCE_TRANSACTIONS (
+    user_id INT NOT NULL,
+    current_balance INT NOT NULL,
+    date DATETIME NOT NULL,
+    transaction_type ENUM('withdraw', 'pop_up', 'pay', 'receive') NOT NULL,
+    transaction_amount INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id)
+);
+
+CREATE TABLE VIOLATION_REPORTS (
+    report_id INT PRIMARY KEY NOT NULL,
+    user_id INT NOT NULL,
+    report_content VARCHAR(3000) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id)
+);
