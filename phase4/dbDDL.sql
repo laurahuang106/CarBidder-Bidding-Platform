@@ -106,17 +106,28 @@ CREATE TABLE VIOLATION_REPORTS (
 );
 
 # VIEW: Show top 10 rating for normal user
-CREATE VIEW Top10RatedUsers AS
+CREATE VIEW Top10RatedSeller AS
 SELECT
     user_id,
     user_name,
-    (seller_rating + buyer_rating) / 2 AS average_rating
+    seller_rating
 FROM USERS
 WHERE user_type = 'NORMAL_USER'
-ORDER BY average_rating DESC
+ORDER BY seller_rating DESC
 LIMIT 10;
 
+# PROCEDURE: Retrieve the bid_id and user_id for highest bidding_amount Bid
+DELIMITER //
 
+CREATE PROCEDURE GetHighestBidDetails(_listing_id INT)
+BEGIN
+    SELECT bidding_id as winner_bidding_id, user_id AS winner_id 
+    FROM BIDDINGS 
+    WHERE listing_id = _listing_id 
+    ORDER BY bidding_amount DESC LIMIT 1;
+END //
+
+DELIMITER ;
 
 DELIMITER //
 

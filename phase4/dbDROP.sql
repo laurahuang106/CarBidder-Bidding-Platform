@@ -9,7 +9,10 @@ DROP TABLE IF EXISTS LISTED_VEHICLES;
 DROP TABLE IF EXISTS USERS;
 
 # Drop view if tables are exist
-DROP VIEW IF EXISTS Top10RatedUsers;
+DROP VIEW IF EXISTS Top10RatedSeller;
+
+# Drop function if tables are exist
+Drop PROCEDURE GetHighestBidDetails;
 
 -- Drop triggers if triggers are exist
 DROP TRIGGER IF EXISTS update_user_ratings;
