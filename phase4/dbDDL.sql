@@ -90,6 +90,7 @@ CREATE TABLE CHATS (
 );
 
 CREATE TABLE BALANCE_TRANSACTIONS (
+	transaction_id INT PRIMARY KEY NOT NULL,
     user_id INT NOT NULL,
     current_balance INT NOT NULL,
     date DATETIME NOT NULL,
