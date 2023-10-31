@@ -2,17 +2,17 @@
 
 -- USERS Table
 INSERT INTO USERS (user_id, user_type, user_name, email, balance, seller_rating, buyer_rating, num_of_seller_rating, num_of_buyer_rating, is_allowed_chat, is_allow_list) VALUES
-(1, 'ADMIN', 'AdminOne', 'admin1@email.com', 40000.00, 5.00, 4.5, 100, 100, TRUE, TRUE),
-(2, 'NORMAL_USER', 'MikeLee', 'mikelee@hotmail.com', 33000.00, 4.5, 4.5, 90, 80, TRUE, TRUE),
-(3, 'NORMAL_USER', 'LucyWhite', 'lucywhite@gmail.com', 59000.00, 4.8, 4.2, 85, 70, TRUE, TRUE),
-(4, 'NORMAL_USER', 'JohnSmith', 'johnsmith@yahoo.com', 19750.00, 4.7, 4.6, 78, 85, TRUE, TRUE),
-(5, 'NORMAL_USER', 'EmmaBrown', 'emmabrown@aol.com', 9800.00, 4.6, 4.7, 88, 80, TRUE, TRUE),
-(6, 'NORMAL_USER', 'OliviaJohnson', 'oliviaj@msn.com', 16000.00, 4.5, 4.3, 92, 75, TRUE, TRUE),
-(7, 'NORMAL_USER', 'JamesWilliams', 'jamesw@gmail.com', 21750.00, 4.4, 4.8, 84, 95, TRUE, TRUE),
-(8, 'NORMAL_USER', 'SophiaDavis', 'sophiad@outlook.com', 54300.00, 4.8, 4.5, 91, 86, TRUE, TRUE),
-(9, 'NORMAL_USER', 'MichaelJordan', 'mjordan@nba.com', 90500.00, 4.2, 4.5, 75, 78, TRUE, TRUE),
-(10, 'NORMAL_USER', 'SerenaWilliams', 'serenaw@tennispro.com', 32000.00, 4.7, 4.0, 89, 72, TRUE, TRUE),
-(11, 'NORMAL_USER', 'LeoMessi', 'lmessi@footballstar.com', 35750.00, 4.9, 4.3, 92, 83, TRUE, TRUE);
+(1, 'ADMIN', 'AdminOne', 'admin1@email.com', 40000.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(2, 'NORMAL_USER', 'MikeLee', 'mikelee@hotmail.com', 33000.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(3, 'NORMAL_USER', 'LucyWhite', 'lucywhite@gmail.com', 59000.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(4, 'NORMAL_USER', 'JohnSmith', 'johnsmith@yahoo.com', 19750.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(5, 'NORMAL_USER', 'EmmaBrown', 'emmabrown@aol.com', 9800.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(6, 'NORMAL_USER', 'OliviaJohnson', 'oliviaj@msn.com', 16000.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(7, 'NORMAL_USER', 'JamesWilliams', 'jamesw@gmail.com', 21750.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(8, 'NORMAL_USER', 'SophiaDavis', 'sophiad@outlook.com', 54300.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(9, 'NORMAL_USER', 'MichaelJordan', 'mjordan@nba.com', 90500.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(10, 'NORMAL_USER', 'SerenaWilliams', 'serenaw@tennispro.com', 32000.00, 0.00, 0.00, 0, 0, TRUE, TRUE),
+(11, 'NORMAL_USER', 'LeoMessi', 'lmessi@footballstar.com', 35750.00, 0.00, 0.00, 0, 0, TRUE, TRUE);
 
 
 -- LISTED_VEHICLES Table
