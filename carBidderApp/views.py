@@ -6,8 +6,8 @@ from django.db import connection
 def testmysql(request):
     with connection.cursor() as cursor:
         cursor.execute("""
-            select user_name
-            from users;
+            select VIN
+            from LISTED_VEHICLES
         """)
 
         rows = cursor.fetchall()
