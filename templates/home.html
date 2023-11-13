@@ -4,8 +4,20 @@
       <title>Test CarBidder</title>
      </head>
      <body>
-      <h1>CarBidder User</h1>
-      <h2>User ID: {{ user_ssn }}</h2>
-      <h2>User Name: {{ user_name }} </h2>
+          <h2>Part Details</h2>
+          <table>
+              <thead>
+                  <tr>
+                      <th>User Name</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for name in user_name %}
+                      <tr>
+                          <td>{{ name }}</td>
+                      </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
      </body>
      </html>

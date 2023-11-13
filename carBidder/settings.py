@@ -96,14 +96,14 @@ if os.getenv('GAE_APPLICATION', None):
             'HOST': '/cloudsql/db-group3:us-west1:cs5200-group3-carbidder',
             'USER': 'root',
             'PASSWORD': '',
-            'NAME': 'company',
+            'NAME': 'car_bidder',
         }
     }
 else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'company',
+            'NAME': 'car_bidder',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': '34.168.175.214',

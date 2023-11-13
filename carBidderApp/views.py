@@ -1,11 +1,18 @@
 from django.shortcuts import render
-from .models import Employee
+from django.db import connection
+# from .models import Employee
 
 # Create your views here.
 def testmysql(request):
-    employee = Employee.objects.all()
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            select user_name
+            from users;
+        """)
+
+        rows = cursor.fetchall()
+
     context = {
-        'user_ssn': employee[0].ssn,
-        'user_name': employee[0].lname,
+        'user_name': rows,
     }
     return render(request, 'home.html', context)
