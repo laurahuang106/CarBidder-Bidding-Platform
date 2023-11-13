@@ -1,23 +1,12 @@
 <!DOCTYPE html>
-     <html lang="en">
-     <head>
-      <title>Test CarBidder</title>
-     </head>
-     <body>
-          <h2>Part Details</h2>
-          <table>
-              <thead>
-                  <tr>
-                      <th>User Name</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for name in user_name %}
-                      <tr>
-                          <td>{{ name }}</td>
-                      </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-     </body>
-     </html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    <h2>Welcome Home</h2>
+    <p>User Type: {{ user_type }}</p>
+    <p>User Name: {{ user_name }}</p>
+</body>
+</html>

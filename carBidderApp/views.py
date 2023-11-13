@@ -3,6 +3,8 @@ from django.db import connection
 from django.contrib.auth.hashers import make_password
 import uuid 
 
+name = ""
+
 def testmysql(request):
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -41,3 +43,36 @@ def register(request):
     # Render the registration form for both GET and POST requests
     return render(request, 'register.html')
 
+def login(request):
+    if request.method == "POST":
+        try:
+            # Get data from POST request
+            user_email = request.POST.get('email', '')
+
+            # Query the database
+            with connection.cursor() as cursor:
+                query = """
+                    SELECT * 
+                    FROM USERS
+                    WHERE email = %s;
+                """
+                cursor.execute(query, [user_email])  # Pass parameters as a list
+                t = cursor.fetchall()
+                user_data = t[0]
+                user_type = user_data[1]
+                user_name = user_data[2]
+                context = {
+                    'user_type': user_type,
+                    'user_name': user_name,
+                }
+                if not t:
+                    return render(request, 'error.html')
+                else:
+                    return render(request, "home.html", context)
+        except Exception as e:
+            # Handle any errors that occur during the process
+            print(f"An error occurred: {e}")
+            # Optionally, add error handling logic here
+
+    # Render the login form for GET requests
+    return render(request, 'login.html')

@@ -20,5 +20,6 @@ from carBidderApp import views
 urlpatterns = [
     # path('admin/', admin.site.urls),
     path('', views.testmysql),
-    path('login/', views.register),
+    path('register/', views.register),
+    path('login/', views.login),
 ]
