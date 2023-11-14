@@ -1,5 +1,5 @@
 CREATE TABLE USERS (
-    user_id INT PRIMARY KEY,
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
     user_type ENUM('ADMIN', 'NORMAL_USER') NOT NULL,
     user_name VARCHAR(30) NOT NULL,
     email VARCHAR(255) UNIQUE,
