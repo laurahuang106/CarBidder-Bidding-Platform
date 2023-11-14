@@ -3,7 +3,7 @@ from django.db import connection
 from django.contrib.auth.hashers import make_password
 import uuid 
 
-name = ""
+cur_user = {}
 
 def testmysql(request):
     # with connection.cursor() as cursor:
@@ -14,8 +14,8 @@ def testmysql(request):
 
     #     rows = cursor.fetchall()
 
-    user_type = request.session.get('user_type', 'DefaultType')
-    user_name = request.session.get('user_name', 'DefaultName')
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
 
     context = {
         'user_type': user_type,
@@ -39,6 +39,7 @@ def register(request):
                 """
                 cursor.execute(query, (user_type, user_name, email))
                 connection.commit()
+                return redirect('home')
         except Exception as e:
             # Handle any errors that occur during the process
             print(f"An error occurred: {e}")
@@ -62,11 +63,12 @@ def login(request):
                 """
                 cursor.execute(query, [user_email])  # Pass parameters as a list
                 t = cursor.fetchall()
-
                 if not t:
                     return render(request, 'error.html')
                 else:
                     # return render(request, "home.html", context)
+                    cur_user = t
+                    print(cur_user)
                     user_data = t[0]
                     user_type = user_data[1]
                     user_name = user_data[2]
@@ -80,3 +82,8 @@ def login(request):
 
     # Render the login form for GET requests
     return render(request, 'login.html')
+
+
+def logout(request):
+    request.session.flush()
+    return redirect('home')
