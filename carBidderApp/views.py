@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth.hashers import make_password
 import uuid 
@@ -6,16 +6,20 @@ import uuid
 name = ""
 
 def testmysql(request):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            select VIN
-            from LISTED_VEHICLES
-        """)
+    # with connection.cursor() as cursor:
+    #     cursor.execute("""
+    #         select VIN
+    #         from LISTED_VEHICLES
+    #     """)
 
-        rows = cursor.fetchall()
+    #     rows = cursor.fetchall()
+
+    user_type = request.session.get('user_type', 'DefaultType')
+    user_name = request.session.get('user_name', 'DefaultName')
 
     context = {
-        'user_name': rows,
+        'user_type': user_type,
+        'user_name': user_name,
     }
     return render(request, 'home.html', context)
 
@@ -58,17 +62,17 @@ def login(request):
                 """
                 cursor.execute(query, [user_email])  # Pass parameters as a list
                 t = cursor.fetchall()
-                user_data = t[0]
-                user_type = user_data[1]
-                user_name = user_data[2]
-                context = {
-                    'user_type': user_type,
-                    'user_name': user_name,
-                }
+
                 if not t:
                     return render(request, 'error.html')
                 else:
-                    return render(request, "home.html", context)
+                    # return render(request, "home.html", context)
+                    user_data = t[0]
+                    user_type = user_data[1]
+                    user_name = user_data[2]
+                    request.session['user_type'] = user_type
+                    request.session['user_name'] = user_name
+                    return redirect('home')
         except Exception as e:
             # Handle any errors that occur during the process
             print(f"An error occurred: {e}")
