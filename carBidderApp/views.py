@@ -7,14 +7,13 @@ cur_user = {}
 
 def home(request):
 
-    # user_type = request.session.get('user_type', '')
-    # user_name = request.session.get('user_name', '')
-    cur_user = request.session.get('cur_user', '')
-    # context = {
-    #     'user_type': user_type,
-    #     'user_name': user_name,
-    # }
-    return render(request, 'home.html', cur_user)
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+    context = {
+        'user_type': user_type,
+        'user_name': user_name,
+    }
+    return render(request, 'home.html', context)
 
 def register(request):
     if request.method == "POST":
@@ -67,29 +66,26 @@ def login(request):
                     user_type = user_data[1]
                     user_name = user_data[2]
                     email = user_data[3]
-                    balance = user_data[4] # Decimal
-                    seller_rating = user_data[5] # Decimal
-                    buyer_rating = user_data[6] # Decimal
+                    balance = str(user_data[4])  # Convert Decimal to string
+                    seller_rating = str(user_data[5])  # Convert Decimal to string
+                    buyer_rating = str(user_data[6])  # Convert Decimal to string
                     num_of_seller_rating = user_data[7]
                     num_of_buyer_rating = user_data[8]
                     is_allow_chat = user_data[9]
                     is_allow_list = user_data[10]
                     
-                    # Constructing cur_user dictionary with all user details
-                    cur_user = {
-                        'user_id': user_id,
-                        'user_type': user_type,
-                        'user_name': user_name,
-                        'email': email,
-                        'balance': str(balance),  # Converting Decimal to string for display
-                        'seller_rating': str(seller_rating),
-                        'buyer_rating': str(buyer_rating),
-                        'num_of_seller_rating': num_of_seller_rating,
-                        'num_of_buyer_rating': num_of_buyer_rating,
-                        'is_allow_chat': is_allow_chat,
-                        'is_allow_list': is_allow_list,
-                    }
-                    request.session['cur_user'] = cur_user
+                    # Assigning values to the session
+                    request.session['user_id'] = user_id
+                    request.session['user_type'] = user_type
+                    request.session['user_name'] = user_name
+                    request.session['email'] = email
+                    request.session['balance'] = balance
+                    request.session['seller_rating'] = seller_rating
+                    request.session['buyer_rating'] = buyer_rating
+                    request.session['num_of_seller_rating'] = num_of_seller_rating
+                    request.session['num_of_buyer_rating'] = num_of_buyer_rating
+                    request.session['is_allow_chat'] = is_allow_chat
+                    request.session['is_allow_list'] = is_allow_list
 
                     return redirect('home')
         except Exception as e:
@@ -106,10 +102,32 @@ def logout(request):
     return redirect('home')
 
 def profile(request):
+    # Fetching data from the session
+    user_id = request.session.get('user_id', '')
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+    email = request.session.get('email', '')
+    balance = request.session.get('balance', '')
+    seller_rating = request.session.get('seller_rating', '')
+    buyer_rating = request.session.get('buyer_rating', '')
+    num_of_seller_rating = request.session.get('num_of_seller_rating', '')
+    num_of_buyer_rating = request.session.get('num_of_buyer_rating', '')
+    is_allow_chat = request.session.get('is_allow_chat', '')
+    is_allow_list = request.session.get('is_allow_list', '')
 
-    # context = {
-    #     'user_type': "user_type",
-    #     'user_name': "user_name",
-    # }
-    cur_user = request.session.get('cur_user', '')
-    return render(request, 'profile.html', cur_user)
+    # Creating the context dictionary
+    context = {
+        'user_id': user_id,
+        'user_type': user_type,
+        'user_name': user_name,
+        'email': email,
+        'balance': balance,
+        'seller_rating': seller_rating,
+        'buyer_rating': buyer_rating,
+        'num_of_seller_rating': num_of_seller_rating,
+        'num_of_buyer_rating': num_of_buyer_rating,
+        'is_allow_chat': is_allow_chat,
+        'is_allow_list': is_allow_list,
+    }
+    
+    return render(request, 'profile.html', context)
