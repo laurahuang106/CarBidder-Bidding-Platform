@@ -2,4 +2,56 @@
 {% block body %}
 <h2>Profile page</h2>
 
+<p>User ID: {{ user_id }}</p>
+<p>User Type: {{ user_type }}</p>
+<p>User Name: {{ user_name }}</p>
+<p>Email: {{ email }}</p>
+<p>Balance: {{ balance }}</p>
+<p>Seller Rating: {{ seller_rating }}</p>
+<p>Buyer Rating: {{ buyer_rating }}</p>
+<p>Number of Seller Ratings: {{ num_of_seller_rating }}</p>
+<p>Number of Buyer Ratings: {{ num_of_buyer_rating }}</p>
+<p>Allow Chat: {{ is_allow_chat }}</p>
+<p>Allow Listing: {{ is_allow_list }}</p>
+
+{% if user_type == "ADMIN" %}
+    <!-- Content for admin users -->
+    <div>
+        <h2>Admin Dashboard</h2>
+        <!-- More admin-specific content here -->
+        <h2>Violation Reports</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Report ID</th>
+                    <th>User ID</th>
+                    <th>Report Content</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in violation_reports %}
+                    <tr>
+                        <td>{{ report.0 }}</td> <!-- report_id -->
+                        <td>{{ report.1 }}</td> <!-- user_id -->
+                        <td>{{ report.2 }}</td> <!-- report_content -->
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% elif user_type == "NORMAL_USER" %}
+    <!-- Content for normal users -->
+    <div>
+        <h2>Welcome, normal user!</h2>
+        <!-- More content for normal users here -->
+    </div>
+{% else %}
+    <!-- Content for other or unspecified user types -->
+    <div>
+        <h2>Welcome to our site!</h2>
+        <!-- General content for all users -->
+    </div>
+{% endif %}
+
+
 {% endblock %}
