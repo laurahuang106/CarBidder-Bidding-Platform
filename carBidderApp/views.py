@@ -66,15 +66,13 @@ def login(request):
                     user_type = user_data[1]
                     user_name = user_data[2]
                     email = user_data[3]
-                    
+
                     cur_user = {
                         'user_type': user_type,
                         'user_name': user_name,
                         'email': email,
 
                     }
-                    # request.session['user_type'] = user_type
-                    # request.session['user_name'] = user_name
                     request.session['cur_user'] = cur_user
                     return redirect('home')
         except Exception as e:
