@@ -5,7 +5,7 @@ import uuid
 
 cur_user = {}
 
-def testmysql(request):
+def home(request):
 
     # user_type = request.session.get('user_type', '')
     # user_name = request.session.get('user_name', '')
@@ -67,37 +67,29 @@ def login(request):
                     user_type = user_data[1]
                     user_name = user_data[2]
                     email = user_data[3]
-                    
-                    cur_user = {
-                        'user_type': user_type,
-                        'user_name': user_name,
-                        'email': email,
-
-                    }
-                    # request.session['user_type'] = user_type
-                    # request.session['user_name'] = user_name
-                    request.session['cur_user'] = cur_user
-                    email = user_data[3]
-                    balance = user_data[4]
-                    seller_rating = user_data[5]
-                    buyer_rating = user_data[6]
+                    balance = user_data[4] # Decimal
+                    seller_rating = user_data[5] # Decimal
+                    buyer_rating = user_data[6] # Decimal
                     num_of_seller_rating = user_data[7]
                     num_of_buyer_rating = user_data[8]
                     is_allow_chat = user_data[9]
                     is_allow_list = user_data[10]
-
-                    # # Assigning values to the session 
-                    # request.session['user_id'] = user_id
-                    # request.session['user_type'] = user_type
-                    # request.session['user_name'] = user_name
-                    # request.session['email'] = email
-                    # request.session['balance'] = balance
-                    # request.session['seller_rating'] = seller_rating
-                    # request.session['buyer_rating'] = buyer_rating
-                    # request.session['num_of_seller_rating'] = num_of_seller_rating
-                    # request.session['num_of_buyer_rating'] = num_of_buyer_rating
-                    # request.session['is_allow_chat'] = is_allow_chat
-                    # request.session['is_allow_list'] = is_allow_list
+                    
+                    # Constructing cur_user dictionary with all user details
+                    cur_user = {
+                        'user_id': user_id,
+                        'user_type': user_type,
+                        'user_name': user_name,
+                        'email': email,
+                        'balance': str(balance),  # Converting Decimal to string for display
+                        'seller_rating': str(seller_rating),
+                        'buyer_rating': str(buyer_rating),
+                        'num_of_seller_rating': num_of_seller_rating,
+                        'num_of_buyer_rating': num_of_buyer_rating,
+                        'is_allow_chat': is_allow_chat,
+                        'is_allow_list': is_allow_list,
+                    }
+                    request.session['cur_user'] = cur_user
 
                     return redirect('home')
         except Exception as e:
