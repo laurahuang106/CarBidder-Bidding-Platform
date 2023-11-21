@@ -9,10 +9,6 @@ def home(request):
 
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
-<<<<<<< HEAD
-    # cur_user = request.session.get('cur_user', '')
-=======
->>>>>>> 1f5016e6163c4bbf15f28864e7a599e5884a48db
     context = {
         'user_type': user_type,
         'user_name': user_name,
@@ -68,13 +64,6 @@ def login(request):
                     user_data = t[0]
                     user_type = user_data[1]
                     user_name = user_data[2]
-<<<<<<< HEAD
-                    context = {
-                        'user_type': user_type,
-                        'user_name': user_name,
-                    }
-                    request.session['context'] = context
-=======
                     email = user_data[3]
                     balance = str(user_data[4])  # Convert Decimal to string
                     seller_rating = str(user_data[5])  # Convert Decimal to string
@@ -96,8 +85,6 @@ def login(request):
                     request.session['num_of_buyer_rating'] = num_of_buyer_rating
                     request.session['is_allow_chat'] = is_allow_chat
                     request.session['is_allow_list'] = is_allow_list
-
->>>>>>> 1f5016e6163c4bbf15f28864e7a599e5884a48db
                     return redirect('home')
         except Exception as e:
             # Handle any errors that occur during the process
@@ -126,9 +113,6 @@ def profile(request):
     is_allow_chat = request.session.get('is_allow_chat', '')
     is_allow_list = request.session.get('is_allow_list', '')
 
-<<<<<<< HEAD
-    return render(request, 'profile.html', cur_user)
-=======
     # Creating the context dictionary
     context = {
         'user_id': user_id,
@@ -145,4 +129,3 @@ def profile(request):
     }
     
     return render(request, 'profile.html', context)
->>>>>>> 1f5016e6163c4bbf15f28864e7a599e5884a48db
