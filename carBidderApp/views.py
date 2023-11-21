@@ -6,22 +6,15 @@ import uuid
 cur_user = {}
 
 def testmysql(request):
-    # with connection.cursor() as cursor:
-    #     cursor.execute("""
-    #         select VIN
-    #         from LISTED_VEHICLES
-    #     """)
 
-    #     rows = cursor.fetchall()
-
-    user_type = request.session.get('user_type', '')
-    user_name = request.session.get('user_name', '')
-
-    context = {
-        'user_type': user_type,
-        'user_name': user_name,
-    }
-    return render(request, 'home.html', context)
+    # user_type = request.session.get('user_type', '')
+    # user_name = request.session.get('user_name', '')
+    cur_user = request.session.get('cur_user', '')
+    # context = {
+    #     'user_type': user_type,
+    #     'user_name': user_name,
+    # }
+    return render(request, 'home.html', cur_user)
 
 def register(request):
     if request.method == "POST":
@@ -72,8 +65,17 @@ def login(request):
                     user_data = t[0]
                     user_type = user_data[1]
                     user_name = user_data[2]
-                    request.session['user_type'] = user_type
-                    request.session['user_name'] = user_name
+                    email = user_data[3]
+                    
+                    cur_user = {
+                        'user_type': user_type,
+                        'user_name': user_name,
+                        'email': email,
+
+                    }
+                    # request.session['user_type'] = user_type
+                    # request.session['user_name'] = user_name
+                    request.session['cur_user'] = cur_user
                     return redirect('home')
         except Exception as e:
             # Handle any errors that occur during the process
@@ -90,4 +92,9 @@ def logout(request):
 
 def profile(request):
 
-    return render(request, 'profile.html')
+    # context = {
+    #     'user_type': "user_type",
+    #     'user_name': "user_name",
+    # }
+    cur_user = request.session.get('cur_user', '')
+    return render(request, 'profile.html', cur_user)
