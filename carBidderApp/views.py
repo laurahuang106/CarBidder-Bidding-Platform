@@ -87,3 +87,7 @@ def login(request):
 def logout(request):
     request.session.flush()
     return redirect('home')
+
+def profile(request):
+
+    return render(request, 'profile.html')

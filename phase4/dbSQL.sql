@@ -45,5 +45,17 @@ ORDER BY total_orders DESC
 LIMIT 3;
 
 
+/*  6. Find users who have reported violations and the number of reports they made. */
+SELECT U.user_id, U.user_name, R.number_of_reports
+FROM USERS U
+LEFT JOIN
+    (
+    SELECT user_id, COUNT(report_id) AS number_of_reports
+	FROM VIOLATION_REPORTS
+	GROUP BY user_id
+    ) R 
+ON U.user_id = R.user_id
+WHERE R.number_of_reports > 0;
+
 
 
