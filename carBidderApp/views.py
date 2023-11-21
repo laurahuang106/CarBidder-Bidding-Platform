@@ -127,17 +127,6 @@ def profile(request):
         'is_allow_chat': is_allow_chat,
         'is_allow_list': is_allow_list,
     }
-
-    # # Check if the user is an admin and fetch violation reports if so
-    # if user_type == 'ADMIN':
-    #     # Fetch violation reports using a cursor
-    #     with connection.cursor() as cursor:
-    #         cursor.execute("SELECT * FROM VIOLATION_REPORTS")
-    #         violation_reports = cursor.fetchall()
-    #         print(violation_reports)
-        
-    #     # Add violation reports to the context
-    #     context['violation_reports'] = violation_reports
     
     return render(request, 'profile.html', context)
 
@@ -146,11 +135,42 @@ def report(request):
     with connection.cursor() as cursor:
         cursor.execute("SELECT * FROM VIOLATION_REPORTS")
         violation_reports = cursor.fetchall()
-        print(violation_reports)
-    
-    # Add violation reports to the context
+
     context = {
         'violation_reports': violation_reports,
     }
+
+    if request.method == 'POST':
+        report_id_to_delete = request.POST.get('report_id_to_delete')
+        if report_id_to_delete:
+            # Delete the report with the specified report_id using a cursor
+            with connection.cursor() as cursor:
+                cursor.execute("DELETE FROM VIOLATION_REPORTS WHERE report_id = %s", [report_id_to_delete])
+
+            # Redirect back to the report page after deleting
+            return redirect('report')
+
     return render(request, 'report.html', context)
 
+
+def users(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM USERS")
+        users = cursor.fetchall()
+    
+    # Add violation reports to the context
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+    context = {
+        'users': users,
+        'user_type': user_type,
+        'user_name': user_name,
+
+    }
+    print("cur_user")
+    print(cur_user)
+    return render(request, 'users.html', context)

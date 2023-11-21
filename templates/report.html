@@ -1,0 +1,72 @@
+{% extends "home.html" %}
+{% block body %}
+<style>
+    /* Apply some basic styles to the table */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+    /* Style the table header */
+    table th {
+        background-color: #f2f2f2;
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    /* Style table rows alternately for better readability */
+    table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    /* Style table data cells */
+    table td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    /* Style the "Resolve" button */
+    table button[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    /* Adjust button appearance on hover */
+    table button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<table>
+    <thead>
+        <tr>
+            <th>Report ID</th>
+            <th>User ID</th>
+            <th>Report Content</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for report in violation_reports %}
+            <tr>
+                <td>{{ report.0 }}</td>
+                <td>{{ report.1 }}</td>
+                <td>{{ report.2 }}</td>
+                <td>
+                    <form method="post" action="{% url 'report' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="report_id_to_delete" value="{{ report.0 }}">
+                        <button type="submit">Resolve</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

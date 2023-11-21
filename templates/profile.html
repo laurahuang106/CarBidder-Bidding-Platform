@@ -19,25 +19,6 @@
     <div>
         <h2>Admin Dashboard</h2>
         <!-- More admin-specific content here -->
-        <h2>Violation Reports</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Report ID</th>
-                    <th>User ID</th>
-                    <th>Report Content</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for report in violation_reports %}
-                    <tr>
-                        <td>{{ report.0 }}</td> <!-- report_id -->
-                        <td>{{ report.1 }}</td> <!-- user_id -->
-                        <td>{{ report.2 }}</td> <!-- report_content -->
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
 {% elif user_type == "NORMAL_USER" %}
     <!-- Content for normal users -->
