@@ -40,61 +40,54 @@ def register(request):
     # Render the registration form for both GET and POST requests
     return render(request, 'register.html')
 
+def update_session(request, email):
+    """
+    Update the session with the user's data based on the provided email.
+    """
+    try:
+        with connection.cursor() as cursor:
+            query = """
+                SELECT * 
+                FROM USERS
+                WHERE email = %s;
+            """
+            cursor.execute(query, [email])
+            user_data = cursor.fetchone()
+
+            if user_data:
+                # Extracting user data and updating the session
+                request.session['user_id'] = user_data[0]
+                request.session['user_type'] = user_data[1]
+                request.session['user_name'] = user_data[2]
+                request.session['email'] = user_data[3]
+                request.session['balance'] = str(user_data[4])  # Convert Decimal to string
+                request.session['seller_rating'] = str(user_data[5])  # Convert Decimal to string
+                request.session['buyer_rating'] = str(user_data[6])  # Convert Decimal to string
+                request.session['num_of_seller_rating'] = user_data[7]
+                request.session['num_of_buyer_rating'] = user_data[8]
+                request.session['is_allow_chat'] = user_data[9]
+                request.session['is_allow_list'] = user_data[10]
+            else:
+                # Handle case where user data is not found
+                # You can redirect to an error page or set an error message
+                pass
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        # Optionally, handle the exception (e.g., set an error message, redirect)
+
+
 def login(request):
     if request.method == "POST":
         try:
-            # Get data from POST request
             user_email = request.POST.get('email', '')
-
-            # Query the database
-            with connection.cursor() as cursor:
-                query = """
-                    SELECT * 
-                    FROM USERS
-                    WHERE email = %s;
-                """
-                cursor.execute(query, [user_email])  # Pass parameters as a list
-                t = cursor.fetchall()
-                if not t:
-                    return render(request, 'error.html')
-                else:
-                    # return render(request, "home.html", context)
-                    cur_user = t
-                    print(cur_user)
-                    user_data = t[0]
-                    user_id = user_data[0]
-                    user_type = user_data[1]
-                    user_name = user_data[2]
-                    email = user_data[3]
-                    balance = str(user_data[4])  # Convert Decimal to string
-                    seller_rating = str(user_data[5])  # Convert Decimal to string
-                    buyer_rating = str(user_data[6])  # Convert Decimal to string
-                    num_of_seller_rating = user_data[7]
-                    num_of_buyer_rating = user_data[8]
-                    is_allow_chat = user_data[9]
-                    is_allow_list = user_data[10]
-                    
-                    # Assigning values to the session
-                    request.session['user_id'] = user_id
-                    request.session['user_type'] = user_type
-                    request.session['user_name'] = user_name
-                    request.session['email'] = email
-                    request.session['balance'] = balance
-                    request.session['seller_rating'] = seller_rating
-                    request.session['buyer_rating'] = buyer_rating
-                    request.session['num_of_seller_rating'] = num_of_seller_rating
-                    request.session['num_of_buyer_rating'] = num_of_buyer_rating
-                    request.session['is_allow_chat'] = is_allow_chat
-                    request.session['is_allow_list'] = is_allow_list
-
-                    return redirect('home')
+            update_session(request, user_email)
+            return redirect('home')
         except Exception as e:
-            # Handle any errors that occur during the process
             print(f"An error occurred: {e}")
-            # Optionally, add error handling logic here
 
-    # Render the login form for GET requests
     return render(request, 'login.html')
+
 
 
 def logout(request):
@@ -102,6 +95,10 @@ def logout(request):
     return redirect('home')
 
 def profile(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+        
     # Fetching data from the session
     user_id = request.session.get('user_id', '')
     user_type = request.session.get('user_type', '')

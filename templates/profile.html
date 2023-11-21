@@ -14,4 +14,25 @@
 <p>Allow Chat: {{ is_allow_chat }}</p>
 <p>Allow Listing: {{ is_allow_list }}</p>
 
+{% if user_type == "ADMIN" %}
+    <!-- Content for admin users -->
+    <div>
+        <h2>Admin Dashboard</h2>
+        <!-- More admin-specific content here -->
+    </div>
+{% elif user_type == "NORMAL_USER" %}
+    <!-- Content for normal users -->
+    <div>
+        <h2>Welcome, normal user!</h2>
+        <!-- More content for normal users here -->
+    </div>
+{% else %}
+    <!-- Content for other or unspecified user types -->
+    <div>
+        <h2>Welcome to our site!</h2>
+        <!-- General content for all users -->
+    </div>
+{% endif %}
+
+
 {% endblock %}
