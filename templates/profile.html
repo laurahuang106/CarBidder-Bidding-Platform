@@ -128,56 +128,61 @@
     {% endif %}
     </br>
     
-    <!-- Add this section to display user's biddings -->
-    <h3>Your Biddings</h3>
-    {% if biddings %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Bidding ID</th>
-                    <th>Listing ID</th>
-                    <th>Make</th>
-                    <th>Model</th>
-                    <th>Year of Production</th>
-                    <th>Image</th>
-                    <th>Listing Status</th>
-                    <th>Bidding Amount</th>
-                    <th>Bidding Date</th>
-                    <th>Winner Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for bid in biddings %}
-                <tr>
-                    <td>{{ bid.0 }}</td>
-                    <td>{{ bid.1 }}</td>
-                    <td>{{ bid.2 }}</td>
-                    <td>{{ bid.3 }}</td>
-                    <td>{{ bid.4 }}</td>
-                    <td>
-                        {% if bid.5 %}
-                            <img src="{{ bid.5 }}" alt="Vehicle Image" style="width:100px; height:auto;">
-                        {% else %}
-                            No Image
-                        {% endif %}
-                    </td>
-                    <td>{{ bid.6|yesno:"Active,Not Active" }}</td>
-                    <td>$ {{ bid.7 }}</td>
-                    <td>{{ bid.8 }}</td>
-                    <td>
-                        {% if bid.9 == null %}
-                            Not Decided
-                        {% else %}
-                            {{ bid.9|yesno:"Winner,Not Winner" }}
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>You have no biddings.</p>
-    {% endif %}
+<!-- In the 'Your Biddings' table -->
+<h3>Your Biddings</h3>
+{% if biddings %}
+    <table>
+        <thead>
+            <tr>
+                <th>Bidding ID</th>
+                <th>Listing ID</th>
+                <th>Make</th>
+                <th>Model</th>
+                <th>Year of Production</th>
+                <th>Image</th>
+                <th>Listing Status</th>
+                <th>Bidding Amount</th>
+                <th>Bidding Date</th>
+                <th>Winner Status</th>
+                <th>Seller</th> <!-- New Column for Seller ID -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for bid in biddings %}
+            <tr>
+                <td>{{ bid.0 }}</td>
+                <td>{{ bid.1 }}</td>
+                <td>{{ bid.2 }}</td>
+                <td>{{ bid.3 }}</td>
+                <td>{{ bid.4 }}</td>
+                <td>
+                    {% if bid.5 %}
+                        <img src="{{ bid.5 }}" alt="Vehicle Image" style="width:100px; height:auto;">
+                    {% else %}
+                        No Image
+                    {% endif %}
+                </td>
+                <td>{{ bid.6|yesno:"Active,Not Active" }}</td>
+                <td>${{ bid.7 }}</td>
+                <td>{{ bid.8 }}</td>
+                <td>
+                    {% if bid.9 == null %}
+                        Not Decided
+                    {% else %}
+                        {{ bid.9|yesno:"Winner,Not Winner" }}
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'other_user_profile' other_user_id=bid.10 %}">{{ bid.11 }}</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>You have no biddings.</p>
+{% endif %}
+
 
 {% else %}
     <!-- Content for other or unspecified user types -->

@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponseRedirect
-import uuid 
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound
 
 cur_user = {}
 
@@ -131,20 +130,22 @@ def profile(request):
 
     # Fetch the user's biddings from the database
     biddings = []
-    
+
     if user_id:
         try:
             with connection.cursor() as cursor:
                 query = """
                     SELECT b.bidding_id, b.listing_id, v.make, v.model, v.year_of_production, 
-                           v.image_url, v.listing_status, b.bidding_amount, b.bidding_date, b.is_winner
+                        v.image_url, v.listing_status, b.bidding_amount, b.bidding_date, b.is_winner,
+                        s.user_id, s.user_name
                     FROM BIDDINGS b
                     INNER JOIN LISTED_VEHICLES v ON b.listing_id = v.listing_id
+                    INNER JOIN USERS s ON v.seller_id = s.user_id
                     WHERE b.user_id = %s;
                 """
                 cursor.execute(query, [user_id])
                 biddings = cursor.fetchall()
-                # print(biddings)
+                print(biddings)
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
@@ -349,7 +350,7 @@ def orders(request):
                 """
                 cursor.execute(query, [user_id])
                 orders = cursor.fetchall()
-                print(orders)
+                # print(orders)
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
@@ -371,3 +372,48 @@ def weekly_reports(request):
     }
     return render(request, 'weekly_reports.html', context)
     
+
+def other_user_profile(request, other_user_id):
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+
+    try:
+        with connection.cursor() as cursor:
+            # Fetch user's user_type
+            cursor.execute(
+                "SELECT user_type FROM USERS WHERE user_id = %s", 
+                [other_user_id])
+            other_user_type = cursor.fetchone()
+
+            # Check if the other user is ADMIN
+            if other_user_type and other_user_type[0] == 'ADMIN':
+                return HttpResponseForbidden("Admin User, Access Denied")
+
+            # Fetch user details
+            cursor.execute(
+                "SELECT user_name, seller_rating, buyer_rating FROM USERS WHERE user_id = %s", 
+                [other_user_id])
+            other_user_details = cursor.fetchone()
+
+            # Fetch listed vehicles
+            if other_user_details:
+                cursor.execute(
+                    "SELECT listing_id, make, model, year_of_production, image_url FROM LISTED_VEHICLES WHERE seller_id = %s", 
+                    [other_user_id])
+                listed_vehicles = cursor.fetchall()
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return HttpResponseNotFound("404 User not found")  # Return a 404 response for missing user ID
+
+    if other_user_details is None:
+        return HttpResponseNotFound("404 User not found")  # Return a 404 response for missing user ID
+
+    context = {
+        "other_user_id": other_user_id,
+        'user_details': other_user_details,
+        'listed_vehicles': listed_vehicles,
+        'user_type': user_type,
+        'user_name': user_name,
+    }
+    return render(request, 'other_user_profile.html', context)
