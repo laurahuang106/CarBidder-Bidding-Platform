@@ -358,6 +358,7 @@ def orders(request):
     context = {'orders': orders,
                 'user_type': user_type,
                 'user_name': user_name,
+                'current_page': 'orders',
                 }
     return render(request, 'orders.html', context)
 
