@@ -5,12 +5,11 @@
     <head>
         <title>{% block title %}Car Bidder{% endblock %}</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <link href="{% static 'auctions/styles.css' %}" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap" rel="stylesheet">
     </head>
     <body>
-        <h1>Car Bidder</h1>
-        <div>
+        <h1 style="text-align: center;">Car Bidder</h1>
+        <div style="text-align: center;">
             {% if user_name %}
                 Signed in as <strong>{{ user_name }}</strong>.
                 User type is <strong>{{ user_type }}</strong>.
