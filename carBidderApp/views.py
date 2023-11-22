@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth.hashers import make_password
+from django.http import HttpResponseRedirect
 import uuid 
 
 cur_user = {}
@@ -99,7 +100,7 @@ def profile(request):
     user_email = request.session.get('email', '')
     if user_email:
         update_session(request, user_email)
-        
+
     # Fetching data from the session
     user_id = request.session.get('user_id', '')
     user_type = request.session.get('user_type', '')
@@ -112,6 +113,44 @@ def profile(request):
     num_of_buyer_rating = request.session.get('num_of_buyer_rating', '')
     is_allow_chat = request.session.get('is_allow_chat', '')
     is_allow_list = request.session.get('is_allow_list', '')
+
+    # Fetch the listings vehicles from the database
+    listings = []
+    if user_id:
+        try:
+            with connection.cursor() as cursor:
+                query = """
+                    SELECT listing_id, make, model, year_of_production, image_url, listing_status
+                    FROM LISTED_VEHICLES
+                    WHERE seller_id = %s;
+                """
+                cursor.execute(query, [user_id])
+                listings = cursor.fetchall()
+                print(listings)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            # Handle the error
+
+    # Fetch the user's biddings from the database
+    biddings = []
+    
+    if user_id:
+        try:
+            with connection.cursor() as cursor:
+                query = """
+                    SELECT b.bidding_id, b.listing_id, v.make, v.model, v.year_of_production, 
+                           v.image_url, v.listing_status, b.bidding_amount, b.bidding_date, b.is_winner
+                    FROM BIDDINGS b
+                    INNER JOIN LISTED_VEHICLES v ON b.listing_id = v.listing_id
+                    WHERE b.user_id = %s;
+                """
+                cursor.execute(query, [user_id])
+                biddings = cursor.fetchall()
+                print(biddings)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            # Handle the error
+
 
     # Creating the context dictionary
     context = {
@@ -126,6 +165,8 @@ def profile(request):
         'num_of_buyer_rating': num_of_buyer_rating,
         'is_allow_chat': is_allow_chat,
         'is_allow_list': is_allow_list,
+        'listings': listings,
+        'biddings': biddings,
     }
     
     return render(request, 'profile.html', context)
@@ -210,3 +251,36 @@ def users(request):
     }
 
     return render(request, 'users.html', context)
+
+def add_funds(request):
+    if request.method == "POST":
+        user_id = request.session.get('user_id')
+        amount = request.POST.get('amount')
+
+        # Only proceed if the user is logged in as a normal user
+        if not user_id or request.session.get('user_type') != 'NORMAL_USER':
+            return HttpResponseRedirect('/')  # Redirect to home or show an error
+
+        try:
+            # Update the user's balance in the database
+            with connection.cursor() as cursor:
+                query = """
+                    UPDATE USERS
+                    SET balance = balance + %s
+                    WHERE user_id = %s;
+                """
+                cursor.execute(query, (amount, user_id))
+                connection.commit()
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            # Handle the error (e.g., set an error message)
+
+        # Optionally, update the session balance
+        request.session['balance'] = str(float(request.session.get('balance', 0)) + float(amount))
+
+        # Redirect to the profile page or show a success message
+        return HttpResponseRedirect('/profile/')
+    else:
+        # Redirect or show an error if accessed directly
+        return HttpResponseRedirect('/')
+    
