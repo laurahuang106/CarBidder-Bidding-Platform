@@ -65,6 +65,8 @@
     <div>
         <h2>Admin Dashboard</h2>
         <!-- More admin-specific content here -->
+        <p> <a class="nav-link" href="{% url 'report' %}">Violation Report</a></a></p>
+        <p><a class="nav-link" href="{% url 'users' %}">User Authoirty</a></p>
     </div>
 
 {% elif user_type == "NORMAL_USER" %}
