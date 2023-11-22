@@ -19,9 +19,6 @@
             {% endif %}
         </div>
         <ul class="nav nav-pills nav-fill">
-          <li class="nav-item">
-               <a class="nav-link">Active Listings</a>
-           </li>
 
            <li class="nav-item">
                <a class="nav-link">Search</a>
@@ -44,7 +41,15 @@
                         <a class="nav-link {% if current_page == 'verify_vehicles' %}active{% endif %}" href="{% url 'verify_vehicles' %}">Vehicles Verification</a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link {% if current_page == 'weekly_reports' %}active{% endif %}" href="{% url 'weekly_reports' %}">Weekly Reports</a>
+                    </li>
+
                 {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link">Active Listings</a>
+                    </li>
+                    
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'orders' %}">Order</a>
                     </li>

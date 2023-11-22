@@ -90,7 +90,6 @@ def login(request):
     return render(request, 'login.html')
 
 
-
 def logout(request):
     request.session.flush()
     return redirect('home')
@@ -360,3 +359,15 @@ def orders(request):
                 'user_name': user_name,
                 }
     return render(request, 'orders.html', context)
+
+def weekly_reports(request):
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+
+    context = {
+        'user_type': user_type,
+        'user_name': user_name,
+        'current_page': 'weekly_reports',
+    }
+    return render(request, 'weekly_reports.html', context)
+    
