@@ -47,7 +47,7 @@ def register(request):
         else:
             message = "Email already in use. Please choose a different email."
 
-    return render(request, 'register.html', {'message': message})
+    return render(request, 'register.html', {'message': message, 'current_page': 'register'})
 
 def update_session(request, email):
     """
@@ -105,7 +105,7 @@ def login(request):
         else:
             error_message = "Please enter an email address."
 
-    return render(request, 'login.html', {'error_message': error_message})
+    return render(request, 'login.html', {'error_message': error_message, 'current_page': 'login'})
 
 def is_email_valid(email):
     with connection.cursor() as cursor:
