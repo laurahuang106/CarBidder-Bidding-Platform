@@ -80,15 +80,31 @@ def update_session(request, email):
 
 
 def login(request):
-    if request.method == "POST":
-        try:
-            user_email = request.POST.get('email', '')
-            update_session(request, user_email)
-            return redirect('home')
-        except Exception as e:
-            print(f"An error occurred: {e}")
+    error_message = None  # Variable to hold the error message
 
-    return render(request, 'login.html')
+    if request.method == "POST":
+        user_email = request.POST.get('email', '')
+
+        if user_email:
+            try:
+                if is_email_valid(user_email):
+                    update_session(request, user_email)
+                    return redirect('home')
+                else:
+                    error_message = "Email does not exist. Please try again or"
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                error_message = "An error occurred during login. Please try again."
+        else:
+            error_message = "Please enter an email address."
+
+    return render(request, 'login.html', {'error_message': error_message})
+
+def is_email_valid(email):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT email FROM USERS WHERE email = %s", [email])
+        return cursor.fetchone() is not None
+
 
 
 def logout(request):
