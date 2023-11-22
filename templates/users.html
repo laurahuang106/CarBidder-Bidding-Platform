@@ -1,1 +1,90 @@
-<h1>User Page</h1>
+{% extends "home.html" %}
+{% block body %}
+<style>
+    /* Apply some basic styles to the table */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+    /* Style the table header */
+    table th {
+        background-color: #f2f2f2;
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    /* Style table rows alternately for better readability */
+    table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    /* Style table data cells */
+    table td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    /* Style the "Resolve" button */
+    table button[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+
+    /* Adjust button appearance on hover */
+    table button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<table>
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>User Name</th>
+            <th>Email</th>
+            <th>Authority to Chat</th>
+            <th>Authority to List</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+            {% if user.1 != "ADMIN" %}
+            <tr>
+                <td>{{ user.0 }}</td>
+                <td>{{ user.2 }}</td>
+                <td>{{ user.3 }}</td>
+                <td>
+                    <form method="post" action="{% url 'users' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id_to_toggle_mute" value="{{ user.0 }}">
+                        {% if user.9 == 0 %}
+                        <button type="submit" style="background-color: grey; color: white;">Unmute</button>
+                        {% else %}
+                        <button type="submit">Mute</button>
+                        {% endif %}
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'users' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id_to_toggle_list" value="{{ user.0 }}">
+                        {% if user.10 == 0 %}
+                        <button type="submit" style="background-color: grey; color: white;">Not List</button>
+                        {% else %}
+                        <button type="submit">Can List</button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -132,13 +132,13 @@ def profile(request):
 
 
 def report(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
     with connection.cursor() as cursor:
         cursor.execute("SELECT * FROM VIOLATION_REPORTS")
         violation_reports = cursor.fetchall()
-
-    context = {
-        'violation_reports': violation_reports,
-    }
 
     if request.method == 'POST':
         report_id_to_delete = request.POST.get('report_id_to_delete')
@@ -149,6 +149,16 @@ def report(request):
 
             # Redirect back to the report page after deleting
             return redirect('report')
+    
+    # Add violation reports to the context
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+    context = {
+        'violation_reports': violation_reports,
+        'user_type': user_type,
+        'user_name': user_name,
+
+    }
 
     return render(request, 'report.html', context)
 
@@ -162,6 +172,34 @@ def users(request):
         cursor.execute("SELECT * FROM USERS")
         users = cursor.fetchall()
     
+    if request.method == 'POST':
+        user_id_to_toggle_mute = request.POST.get('user_id_to_toggle_mute')
+        if user_id_to_toggle_mute:
+            with connection.cursor() as cursor:
+                # Check if the user is currently muted or not
+                cursor.execute("SELECT is_allowed_chat FROM USERS WHERE user_id = %s", [user_id_to_toggle_mute])
+                is_muted = cursor.fetchone()[0]
+                
+                # Toggle mute status
+                new_status = not is_muted
+                cursor.execute("UPDATE USERS SET is_allowed_chat = %s WHERE user_id = %s", [new_status, user_id_to_toggle_mute])
+            
+            return redirect('users') 
+    
+    if request.method == 'POST':
+        user_id_to_toggle_list = request.POST.get('user_id_to_toggle_list')
+        if user_id_to_toggle_list:
+            with connection.cursor() as cursor:
+                # Check the current listing permission of the user
+                cursor.execute("SELECT is_allow_list FROM USERS WHERE user_id = %s", [user_id_to_toggle_list])
+                can_list = cursor.fetchone()[0]
+
+                # Toggle the permission
+                new_list_status = not can_list
+                cursor.execute("UPDATE USERS SET is_allow_list = %s WHERE user_id = %s", [new_list_status, user_id_to_toggle_list])
+
+            return redirect('users')
+    
     # Add violation reports to the context
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
@@ -169,8 +207,6 @@ def users(request):
         'users': users,
         'user_type': user_type,
         'user_name': user_name,
-
     }
-    print("cur_user")
-    print(cur_user)
+
     return render(request, 'users.html', context)
