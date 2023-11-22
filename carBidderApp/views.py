@@ -265,7 +265,7 @@ def verify_vehicles(request):
         new_status = None
         if verification_action == 'Verify':
             new_status = True
-        elif verification_action == 'Pending':
+        elif verification_action == 'NotVerify':
             new_status = False
         # 'Not Started' will be represented by None, so no need for an explicit check
 

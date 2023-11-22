@@ -2,7 +2,6 @@
 {% block body %}
     {% if user_type == 'ADMIN' %}
         <div class="container mt-4">
-            <h2 class="mb-3">Vehicle Verification</h2>
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
@@ -27,16 +26,26 @@
                         <td>{{ vehicle.9 }}</td>
                         <td>{{ vehicle.10 }}</td>
                         <td>{{ vehicle.11 }}</td>
-                        <td>{{ vehicle.16 }}</td>
+                        <td>
+                            {% if vehicle.16 == True %} 
+                                <span style="color: green; font-weight: bold;">&#10003;</span>
+                            {% elif vehicle.16 == False %} 
+                                <span style="color: red; font-weight: bold;">&#10007;</span>
+                            {% else %} 
+                                Pending
+                            {% endif %}
+                        </td>
                         <td>
                             <form method="post" class="form-inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="vehicle_id" value="{{ vehicle.1 }}">
                                 <select name="verification_action" class="form-select form-select-sm mr-2">
+                                    <option value="" disabled selected>--select--</option>
                                     <option value="Verify">Verify</option>
+                                    <option value="NotVerify">Not Verify</option>
                                     <option value="Pending">Pending</option>
-                                    <option value="Not Started">Not Started</option>
                                 </select>
+                                
                         
                                 <button type="submit" class="btn btn-primary btn-sm">Update</button>
                             </form>
