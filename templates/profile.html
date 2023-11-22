@@ -96,6 +96,7 @@
                 <th>Model</th>
                 <th>Year of Production</th>
                 <th>Image</th>
+                <th>Listing Date</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -113,6 +114,7 @@
                         No Image
                     {% endif %}
                 </td>
+                <td>{{ listing.6}}</td>
                 <td>{{ listing.5|yesno:"Active,Not Active" }}</td>
             </tr>
             {% endfor %}
@@ -157,7 +159,7 @@
                         {% endif %}
                     </td>
                     <td>{{ bid.6|yesno:"Active,Not Active" }}</td>
-                    <td>{{ bid.7 }}</td>
+                    <td>$ {{ bid.7 }}</td>
                     <td>{{ bid.8 }}</td>
                     <td>
                         {% if bid.9 == null %}

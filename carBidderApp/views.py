@@ -120,13 +120,12 @@ def profile(request):
         try:
             with connection.cursor() as cursor:
                 query = """
-                    SELECT listing_id, make, model, year_of_production, image_url, listing_status
+                    SELECT listing_id, make, model, year_of_production, image_url, listing_status, listing_start_date
                     FROM LISTED_VEHICLES
                     WHERE seller_id = %s;
                 """
                 cursor.execute(query, [user_id])
                 listings = cursor.fetchall()
-                print(listings)
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
@@ -146,7 +145,7 @@ def profile(request):
                 """
                 cursor.execute(query, [user_id])
                 biddings = cursor.fetchall()
-                print(biddings)
+                # print(biddings)
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
@@ -284,3 +283,36 @@ def add_funds(request):
         # Redirect or show an error if accessed directly
         return HttpResponseRedirect('/')
     
+
+def orders(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
+    user_id = request.session.get('user_id', '')
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+
+    # Fetch orders from the database
+    orders = []
+    if user_id:
+        try:
+            with connection.cursor() as cursor:
+                query = """
+                    SELECT vo.order_id, vo.listing_id, lv.image_url, vo.order_price, 
+                           vo.order_date, vo.is_shipped, vo.tracking_number, vo.is_paid
+                    FROM VEHICLE_ORDERS vo
+                    INNER JOIN LISTED_VEHICLES lv ON vo.listing_id = lv.listing_id
+                    WHERE vo.buyer_id = %s;
+                """
+                cursor.execute(query, [user_id])
+                orders = cursor.fetchall()
+                print(orders)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            # Handle the error
+
+    context = {'orders': orders,
+                'user_type': user_type,
+                'user_name': user_name,}
+    return render(request, 'orders.html', context)
