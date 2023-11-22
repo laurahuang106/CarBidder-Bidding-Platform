@@ -251,6 +251,46 @@ def users(request):
 
     return render(request, 'users.html', context)
 
+def verify_vehicles(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
+    # Check if the request is a POST to update verification status
+    if request.method == 'POST':
+        vehicle_id = request.POST.get('vehicle_id')
+        verification_action = request.POST.get('verification_action')
+
+        new_status = None
+        if verification_action == 'Verify':
+            new_status = True
+        elif verification_action == 'NotVerify':
+            new_status = False
+        # 'Not Started' will be represented by None, so no need for an explicit check
+
+        # Update the database
+        with connection.cursor() as cursor:
+            cursor.execute("UPDATE LISTED_VEHICLES SET is_verified = %s WHERE vehicle_id = %s", [new_status, vehicle_id])
+
+        # Redirect to the same page to prevent form resubmission on page refresh
+        return redirect('verify_vehicles')
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM LISTED_VEHICLES")
+        vehicles = cursor.fetchall()
+
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+
+    context = {
+        'vehicles': vehicles,
+        'user_type': user_type,
+        'user_name': user_name,
+    }
+
+    return render(request, 'verify_vehicles.html', context)
+
+
 def add_funds(request):
     if request.method == "POST":
         user_id = request.session.get('user_id')
