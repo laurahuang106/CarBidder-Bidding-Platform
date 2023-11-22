@@ -90,7 +90,6 @@ def login(request):
     return render(request, 'login.html')
 
 
-
 def logout(request):
     request.session.flush()
     return redirect('home')
@@ -166,6 +165,7 @@ def profile(request):
         'is_allow_list': is_allow_list,
         'listings': listings,
         'biddings': biddings,
+        'current_page': 'profile',
     }
     
     return render(request, 'profile.html', context)
@@ -197,7 +197,7 @@ def report(request):
         'violation_reports': violation_reports,
         'user_type': user_type,
         'user_name': user_name,
-
+        'current_page': 'violation_reports',
     }
 
     return render(request, 'report.html', context)
@@ -247,6 +247,7 @@ def users(request):
         'users': users,
         'user_type': user_type,
         'user_name': user_name,
+        'current_page': 'users',
     }
 
     return render(request, 'users.html', context)
@@ -286,6 +287,7 @@ def verify_vehicles(request):
         'vehicles': vehicles,
         'user_type': user_type,
         'user_name': user_name,
+        'current_page': 'verify_vehicles',
     }
 
     return render(request, 'verify_vehicles.html', context)
@@ -354,5 +356,18 @@ def orders(request):
 
     context = {'orders': orders,
                 'user_type': user_type,
-                'user_name': user_name,}
+                'user_name': user_name,
+                }
     return render(request, 'orders.html', context)
+
+def weekly_reports(request):
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+
+    context = {
+        'user_type': user_type,
+        'user_name': user_name,
+        'current_page': 'weekly_reports',
+    }
+    return render(request, 'weekly_reports.html', context)
+    
