@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth.hashers import make_password
+from django.http import HttpResponseRedirect
+from datetime import datetime, timedelta
 from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound
 
 cur_user = {}
@@ -145,7 +147,6 @@ def profile(request):
                 """
                 cursor.execute(query, [user_id])
                 biddings = cursor.fetchall()
-                print(biddings)
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
@@ -350,7 +351,6 @@ def orders(request):
                 """
                 cursor.execute(query, [user_id])
                 orders = cursor.fetchall()
-                # print(orders)
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
@@ -362,14 +362,108 @@ def orders(request):
     return render(request, 'orders.html', context)
 
 def weekly_reports(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
 
+    start_date = None
+    end_date = None
+    vehicle_start_date = None
+    vehicle_end_date = None
+    if 'start_date' in request.POST:
+        # Default start_date and end_date as None
+        request.session['start_date'] = request.POST.get('start_date')
+        request.session['end_date'] = request.POST.get('end_date')
+
+    elif 'vehicle_start_date' in request.POST:
+        request.session['vehicle_start_date'] = request.POST.get('vehicle_start_date')
+        request.session['vehicle_end_date'] = request.POST.get('vehicle_end_date')
+
+    # Retrieve from session if available
+    start_date = request.session.get('start_date', '')
+    end_date = request.session.get('end_date', '')
+    vehicle_start_date = request.session.get('vehicle_start_date', '')
+    vehicle_end_date = request.session.get('vehicle_end_date', '')
+
+    # get sales report
+    report_data = None
+    if start_date and end_date:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT SUM(order_price) AS TotalSaleAmount, COUNT(order_id) AS TotalNumberOfSales 
+                FROM VEHICLE_ORDERS 
+                WHERE order_date BETWEEN %s AND %s
+            """, [start_date, end_date])
+            
+            report_data = cursor.fetchone()
+
+    
+    popular_vehicles = None 
+    if vehicle_start_date and vehicle_end_date:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    listing_id, 
+                    make, 
+                    model, 
+                    year_of_production, 
+                    number_of_bids
+                FROM (
+                    SELECT 
+                        LV.listing_id AS listing_id, 
+                        LV.make AS make, 
+                        LV.model AS model, 
+                        LV.year_of_production AS year_of_production, 
+                        COUNT(*) AS number_of_bids,
+                        DENSE_RANK() OVER (ORDER BY COUNT(*) DESC) AS bid_rank
+                    FROM 
+                        LISTED_VEHICLES AS LV
+                    JOIN 
+                        BIDDINGS AS B ON LV.listing_id = B.listing_id
+                    WHERE 
+                        B.bidding_date BETWEEN %s AND %s
+                    GROUP BY 
+                        LV.listing_id
+                ) AS ranked_listings
+                WHERE 
+                    bid_rank <= 5;
+            """, [vehicle_start_date, vehicle_end_date])
+            popular_vehicles = cursor.fetchall()
+    
+    top_sellers = None 
+    # Fetch top sellers data
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT user_id, user_name, seller_rating, num_of_seller_rating
+            FROM USERS
+            WHERE user_type = 'NORMAL_USER'
+            ORDER BY seller_rating DESC, num_of_seller_rating DESC
+            LIMIT 10
+        """)
+        top_sellers = cursor.fetchall()
+    
+    print(start_date)
+    print(end_date)
+    print(vehicle_start_date)
+    print(vehicle_end_date)
     context = {
         'user_type': user_type,
         'user_name': user_name,
         'current_page': 'weekly_reports',
+        'report_data': report_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'top_sellers': top_sellers,
+        'popular_vehicles': popular_vehicles,
+        'vehicle_start_date': vehicle_start_date,
+        'vehicle_end_date': vehicle_end_date,
+        'start_date': start_date,
+        'end_date': end_date,
     }
+
     return render(request, 'weekly_reports.html', context)
     
 
