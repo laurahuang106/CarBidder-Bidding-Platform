@@ -17,30 +17,37 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
+def is_email_valid(email):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT email FROM USERS WHERE email = %s", [email])
+        return cursor.fetchone() is not None
+
 def register(request):
+    message = None
+
     if request.method == "POST":
-        try:
-            # Get data from POST request
-            user_type = request.POST.get('user_type', '')
-            user_name = request.POST.get('user_name', '')
-            email = request.POST.get('email', '')
+        user_type = request.POST.get('user_type', '')
+        user_name = request.POST.get('user_name', '')
+        email = request.POST.get('email', '')
 
-            # Insert data into the database
-            with connection.cursor() as cursor:
-                query = """
-                    INSERT INTO USERS (user_type, user_name, email)
-                    VALUES (%s, %s, %s);
-                """
-                cursor.execute(query, (user_type, user_name, email))
-                connection.commit()
-                return redirect('home')
-        except Exception as e:
-            # Handle any errors that occur during the process
-            print(f"An error occurred: {e}")
-            # Optionally, add error handling logic here (e.g., set an error message, rollback transaction)
+        if not is_email_valid(email):  # Check if the email is not already in use
+            try:
+                with connection.cursor() as cursor:
+                    query = """
+                        INSERT INTO USERS (user_type, user_name, email)
+                        VALUES (%s, %s, %s);
+                    """
+                    cursor.execute(query, (user_type, user_name, email))
+                    connection.commit()
 
-    # Render the registration form for both GET and POST requests
-    return render(request, 'register.html')
+                message = "Registration successful! "
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                message = "An error occurred during registration. Please try again."
+        else:
+            message = "Email already in use. Please choose a different email."
+
+    return render(request, 'register.html', {'message': message})
 
 def update_session(request, email):
     """

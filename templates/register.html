@@ -23,6 +23,11 @@
 <div class="centered-form">
     <h2>User Registration</h2>
     </br>
+    
+    {% if message %}
+        <div style="color: blue">{{ message }}</div>
+    {% endif %}
+
     <form method="post">
         {% csrf_token %}
 
