@@ -1,38 +1,63 @@
 {% extends "home.html" %}
 {% block body %}
-    <div class="container mt-4">
-        <!-- Report 1 -->
-        <div class="card mb-3">
-            <div class="card-header">
-                Report 1
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Title of Report 1</h5>
-                <p class="card-text">Content of Report 1...</p>
-            </div>
-        </div>
+<div class="container mt-4">
 
-        <!-- Report 2 -->
-        <div class="card mb-3">
-            <div class="card-header">
-                Report 2
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Title of Report 2</h5>
-                <p class="card-text">Content of Report 2...</p>
-            </div>
+    <!-- Sales Report Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Generate Sales Report</h5>
         </div>
-
-        <!-- Report 3 -->
-        <div class="card mb-3">
-            <div class="card-header">
-                Report 3
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Title of Report 3</h5>
-                <p class="card-text">Content of Report 3...</p>
-            </div>
+        <div class="card-body">
+            <form method="post" class="mb-3">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" class="form-control" id="startDate" name="start_date" value="{{ start_date }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" class="form-control" id="endDate" name="end_date" value="{{ end_date }}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Get Report</button>
+            </form>
+            {% if report_data %}
+            <p><strong>Total Sales Amount:</strong> {{ report_data.0 }}<br>
+               <strong>Total Number of Sales:</strong> {{ report_data.1 }}</p>
+            {% endif %}
         </div>
-
     </div>
+
+    <!-- Top 10 Sellers -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">Top 10 Sellers</h5>
+        </div>
+        <div class="card-body">
+            {% if top_sellers %}
+            <ul class="list-group">
+                {% for seller in top_sellers %}
+                <li class="list-group-item">
+                    <strong>{{ seller.1 }}</strong> (Rating: {{ seller.2 }}, Number of Ratings: {{ seller.3 }})
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No sellers to display.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Additional Reports -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Title of Report 3</h5>
+        </div>
+        <div class="card-body">
+            <p>Content of Report 3...</p>
+        </div>
+    </div>
+
+</div>
 {% endblock %}

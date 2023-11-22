@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseRedirect
-import uuid 
+from datetime import datetime, timedelta
 
 cur_user = {}
 
@@ -361,13 +361,62 @@ def orders(request):
     return render(request, 'orders.html', context)
 
 def weekly_reports(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
+
+    # Default start_date and end_date as None
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
+
+    report_data = None
+    if start_date and end_date:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT SUM(order_price) AS TotalSaleAmount, COUNT(order_id) AS TotalNumberOfSales 
+                FROM VEHICLE_ORDERS 
+                WHERE order_date BETWEEN %s AND %s
+            """, [start_date, end_date])
+            
+            report_data = cursor.fetchone()
+
+    top_sellers = None 
+    # Fetch top sellers data
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT user_id, user_name, seller_rating, num_of_seller_rating
+            FROM USERS
+            WHERE user_type = 'NORMAL_USER'
+            ORDER BY seller_rating DESC, num_of_seller_rating DESC
+            LIMIT 10
+        """)
+        top_sellers = cursor.fetchall()
+    
+    popular_vehicles = None 
+    # Fetch top sellers data
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT user_id, user_name, seller_rating, num_of_seller_rating
+            FROM USERS
+            WHERE user_type = 'NORMAL_USER'
+            ORDER BY seller_rating DESC, num_of_seller_rating DESC
+            LIMIT 10
+        """)
+        popular_vehicles = cursor.fetchall()
 
     context = {
         'user_type': user_type,
         'user_name': user_name,
         'current_page': 'weekly_reports',
+        'report_data': report_data,
+        'start_date': start_date,
+        'end_date': end_date,
+        'top_sellers': top_sellers,
     }
+
     return render(request, 'weekly_reports.html', context)
+
     
