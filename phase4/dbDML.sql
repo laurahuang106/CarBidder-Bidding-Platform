@@ -132,7 +132,4 @@ INSERT INTO VIOLATION_REPORTS (report_id, user_id, report_content) VALUES
 (8, 2, 'Suspicious activity on this user "SophiaDavis"\'s account.');
 
 
-# Data Deletion: when a user cancels his/her bid on a listing
--- DELETE FROM BIDDINGS
--- WHERE user_id = 'selected_user_id' AND listing_id = 'selected_listing_id';
 
