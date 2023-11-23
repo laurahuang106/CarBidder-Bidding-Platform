@@ -574,6 +574,13 @@ def other_user_profile(request, other_user_id):
 
 
 def search_car(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
+    # Fetching data from the session
+    user_id = request.session.get('user_id', '')
+
     # Fetch unique values for dropdowns from the database
     with connection.cursor() as cursor:
         cursor.execute(
@@ -689,13 +696,18 @@ def search_car(request):
         for row in cursor.fetchall():
             vehicles.append(dict(zip(columns, row)))
 
+    user_name = request.session.get('user_name', '')
+    user_type = request.session.get('user_type', '')
+
     return render(request, 'search_car.html', {
+        'user_name': user_name,
+        'user_type': user_type,
         'vehicles': vehicles,
         'makes': makes,
         'years': years,
         'mileages': mileages,
         'prices': prices,
-        'error_message': error_message
+        'error_message': error_message,
     })
 
 
@@ -772,11 +784,16 @@ def product_detail(request, listing_id):
             messages.success(request, 'Bid placed successfully!')
             # Redirect to the same page to display the success message
             return redirect('bid_success', listing_id=listing_id, user_id=request.user.id)
-        # If the bid is not successful, you might want to add an error message and
-        # handle it accordingly
+
+    user_name = request.session.get('user_name', '')
+    user_type = request.session.get('user_type', '')
 
     # For GET requests or if the bid placement is not successful, render the page with product details
-    return render(request, 'product_detail.html', {'product': product_dict})
+    return render(request, 'product_detail.html', {
+        'product': product_dict,
+        'user_name': user_name,
+        'user_type': user_type,
+    })
 
 
 def bid(request, listing_id):
@@ -818,41 +835,38 @@ def bid(request, listing_id):
 
         result = cursor.fetchone()
 
+    user_name = request.session.get('user_name', '')
+    user_type = request.session.get('user_type', '')
+
     product_dict = {
-        # Assuming these indices are correct
+        'user_name': user_name,
+        'user_type': user_type,
         'image_url': result[4],
         'make': result[6],
         'model': result[7],
         'price': result[11],
     }
 
-    return render(request, 'bid.html', {'product': product_dict, 'listing_id': listing_id})
+    user_name = request.session.get('user_name', '')
+    user_type = request.session.get('user_type', '')
 
-
-def bid_success(request, listing_id):
-    # need modification
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT *
-            FROM BIDDINGS 
-            WHERE listing_id = %s
-        """, [listing_id])
-
-        result = cursor.fetchone()
-
-    # Map the result to a dictionary for easy access in the template
-    bidding_dict = {
-        'bidding_amount': result[3],
-    }
-
-    return render(request, 'bid.html', {'bidding': bidding_dict})
-
-# views.py
+    return render(request, 'bid.html', {
+        'product': product_dict,
+        'listing_id': listing_id,
+        'user_name': user_name,
+        'user_type': user_type,
+    })
 
 
 def chatbot(request):
-    # Render the chat interface page
-    return render(request, 'chatbot.html')
+    user_name = request.session.get('user_name', '')
+    user_type = request.session.get('user_type', '')
+
+    return render(request, 'chatbot.html', {
+
+        'user_name': user_name,
+        'user_type': user_type,
+    })
 
 
 @csrf_exempt
@@ -872,3 +886,24 @@ def chat(request):
         return JsonResponse({'response': response.choices[0].message['content']})
     except Exception as e:
         return JsonResponse({'response': str(e)}, status=500)
+
+
+# def bid_success(request, listing_id):
+#     # need modification
+#     with connection.cursor() as cursor:
+#         cursor.execute("""
+#             SELECT *
+#             FROM BIDDINGS
+#             WHERE listing_id = %s
+#         """, [listing_id])
+
+#         result = cursor.fetchone()
+
+#     # Map the result to a dictionary for easy access in the template
+#     bidding_dict = {
+#         'bidding_amount': result[3],
+#     }
+
+#     return render(request, 'bid.html', {'bidding': bidding_dict})
+
+# # views.py

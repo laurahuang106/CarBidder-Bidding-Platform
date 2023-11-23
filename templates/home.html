@@ -20,9 +20,13 @@
         <ul class="nav nav-pills nav-fill">
 
            <li class="nav-item">
-               <a class="nav-link">Search</a>
+               <a class="nav-link" href="{% url 'search_car' %}">Search</a>
            </li>
+           <li class="nav-item">
+            <a class="nav-link" href="{% url 'chatbot' %}">Chatbot</a>
+            </li>
             {% if user_name %}
+             </li>
                 <li class="nav-item">
                     <a class="nav-link {% if current_page == 'profile' %}active{% endif %}" href="{% url 'profile' %}">Profile</a>
                 </li>
@@ -45,10 +49,6 @@
                     </li>
 
                 {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link">Active Listings</a>
-                    </li>
-                    
                     <li class="nav-item">
                         <a class="nav-link {% if current_page == 'orders' %}active{% endif %}" href="{% url 'orders' %}">Orders</a>
                     </li>
