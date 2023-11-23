@@ -31,4 +31,9 @@ urlpatterns = [
     path('orders/', views.orders, name='orders'),
     path('profile/<int:other_user_id>/', views.other_user_profile, name='other_user_profile'),
     path('weekly_reports/', views.weekly_reports, name='weekly_reports'),
+
+
+    path('search', views.search_car, name="search_car"),
+    path('product/<int:listing_id>/', views.product_detail, name='product_detail'),
+    path('product/<int:listing_id>/bid', views.bid, name='bid'),
 ]
