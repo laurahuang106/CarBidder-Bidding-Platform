@@ -278,7 +278,7 @@ END //
 DELIMITER ;
     
 CREATE EVENT update_listing_status
-ON SCHEDULE EVERY 2 minute
+ON SCHEDULE EVERY 1 day
 STARTS CURRENT_TIMESTAMP
 DO
     CALL UpdateExpiredListings();
