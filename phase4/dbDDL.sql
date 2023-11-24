@@ -51,12 +51,13 @@ CREATE TABLE BIDDINGS (
 
 
 CREATE TABLE RATINGS (
-    rating_id INT PRIMARY KEY,
+    rating_id INT AUTO_INCREMENT PRIMARY KEY,
     listing_id INT NOT NULL,
     seller_id INT NOT NULL,
     winner_id INT NOT NULL,
-    seller_rate_from_winner DECIMAL(3, 1) NOT NULL,
-    winner_rate_from_seller DECIMAL(3, 1) NOT NULL,
+    seller_rate_from_winner BOOLEAN NOT NULL, -- True or false
+    winner_rate_from_seller BOOLEAN NOT NULL, -- True or false
+    rate INT NOT NULL DEFAULT 5 , -- From 1-5
     FOREIGN KEY (listing_id) REFERENCES LISTED_VEHICLES(listing_id),
     FOREIGN KEY (seller_id) REFERENCES USERS(user_id),
     FOREIGN KEY (winner_id) REFERENCES USERS(user_id)
@@ -128,44 +129,28 @@ BEGIN
     ORDER BY bidding_amount DESC LIMIT 1;
 END //
 
-DELIMITER ;
-
-DELIMITER //
 
 CREATE TRIGGER update_user_ratings
 AFTER INSERT ON RATINGS
 FOR EACH ROW
 BEGIN
-    -- Update seller's ratings and count
-    UPDATE USERS
-    SET
-        seller_rating = (
-            SELECT AVG(seller_rate_from_winner)
-            FROM RATINGS
-            WHERE seller_id = NEW.seller_id
-        ),
-        num_of_seller_rating = (
-            SELECT COUNT(*)
-            FROM RATINGS
-            WHERE seller_id = NEW.seller_id
-        )
-    WHERE user_id = NEW.seller_id;
+    -- Update seller rating and count
+    IF NEW.seller_rate_from_winner THEN
+        UPDATE USERS
+        SET seller_rating = (seller_rating * num_of_seller_rating + NEW.rate) / (num_of_seller_rating + 1),
+            num_of_seller_rating = num_of_seller_rating + 1
+        WHERE user_id = NEW.seller_id;
+    END IF;
 
-    -- Update winner's ratings and count
-    UPDATE USERS
-    SET
-        buyer_rating = (
-            SELECT AVG(winner_rate_from_seller)
-            FROM RATINGS
-            WHERE winner_id = NEW.winner_id
-        ),
-        num_of_buyer_rating = (
-            SELECT COUNT(*)
-            FROM RATINGS
-            WHERE winner_id = NEW.winner_id
-        )
-    WHERE user_id = NEW.winner_id;
+    -- Update buyer rating and count
+    IF NEW.winner_rate_from_seller THEN
+        UPDATE USERS
+        SET buyer_rating = (buyer_rating * num_of_buyer_rating + NEW.rate) / (num_of_buyer_rating + 1),
+            num_of_buyer_rating = num_of_buyer_rating + 1
+        WHERE user_id = NEW.winner_id;
+    END IF;
 END;
+
 //
 
 

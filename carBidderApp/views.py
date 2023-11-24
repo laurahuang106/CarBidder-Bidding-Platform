@@ -3,7 +3,7 @@ from django.db import connection
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseRedirect
 from datetime import datetime, timedelta
-from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound
+from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -120,7 +120,7 @@ def login(request):
             try:
                 if is_email_valid(user_email):
                     update_session(request, user_email)
-                    return redirect('home')
+                    return redirect('search_car')
                 else:
                     error_message = "Email does not exist. Please try again or"
             except Exception as e:
@@ -907,3 +907,16 @@ def chat(request):
 #     return render(request, 'bid.html', {'bidding': bidding_dict})
 
 # # views.py
+
+
+def buyer_rate_seller(request, order_id):
+    user_id = request.session.get('user_id', None)
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+
+
+
+    return render(request, 'buyer_rate_seller.html', 
+                  {
+                   'user_name': user_name,
+                    'user_type': user_type,})

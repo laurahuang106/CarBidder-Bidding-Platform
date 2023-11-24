@@ -20,9 +20,12 @@ User Story
     
 * Install the required dependencies:
 ```
-pip install -r requirement.txt
+MY_API_KEY = <your api key>
 ```
 * Rename the file to `.env` and edit
+```
+pip install -r requirements.txt
+```
 * Run the application on localhost
 ```
 python manage.py runserver

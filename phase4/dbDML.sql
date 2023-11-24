@@ -63,14 +63,14 @@ INSERT INTO BIDDINGS (bidding_id, listing_id, user_id, bidding_amount, bidding_d
 
 
 -- RATINGS Table
-INSERT INTO RATINGS (rating_id, listing_id, seller_id, winner_id, seller_rate_from_winner, winner_rate_from_seller) VALUES
-(1, 1, 2, 4, 4.8, 4.6),
-(2, 2, 3, 6, 4.7, 4.3),
-(3, 3, 4, 5, 4.6, 4.7),
-(4, 5, 6, 7, 4.5, 4.8),
-(5, 7, 8, 3, 4.8, 4.2),
-(6, 8, 9, 2, 4.5, 4.5),
-(7, 9, 9, 6, 4.2, 4.3);
+INSERT INTO RATINGS (listing_id, seller_id, winner_id, seller_rate_from_winner, winner_rate_from_seller, rate) VALUES
+(1, 2, 4, TRUE, FALSE, 4),
+(2, 3, 6, FALSE, TRUE, 5),
+(3, 4, 5, TRUE, TRUE, 3),
+(5, 6, 7, FALSE, FALSE, 2),
+(7, 8, 3, TRUE, TRUE, 5),
+(8, 9, 2, FALSE, FALSE, 1),
+(9, 9, 6, TRUE, FALSE, 4);
 
 
 -- VEHICLE_ORDERS Table
