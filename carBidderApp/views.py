@@ -805,7 +805,7 @@ def product_detail(request, listing_id):
     }
 
     # return render(request, 'product_detail.html', {'product': product_dict})
-    if request.method == 'POST':
+    if request.method == 'POST' and 'bid_amount' in request.POST:
         bid_amount = request.POST.get('bid_amount')
         # Assuming user authentication
         user_id = request.user.id
@@ -824,16 +824,59 @@ def product_detail(request, listing_id):
             # Redirect to the same page to display the success message
             return redirect('bid_success', listing_id=listing_id, user_id=request.user.id)
 
+    user_id = request.session.get('user_id', '')
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
+
+    # Add new chat
+    seller_id = result[20]
+    current_user_id = request.session.get('user_id', '')
+    if add_new_chat(request, listing_id, user_id, seller_id):
+        return redirect('product_detail', listing_id=listing_id)
+
+    # Get chat history
+    chat_history = get_chat_history(listing_id, current_user_id, seller_id)
 
     # For GET requests or if the bid placement is not successful, render the page with product details
     return render(request, 'product_detail.html', {
         'product': product_dict,
         'user_name': user_name,
         'user_type': user_type,
-        'current_page': 'product_detail',
+        'user_id': user_id,
+        'chat_history': chat_history
     })
+
+
+def get_chat_history(listing_id, buyer_id, seller_id):
+    chat_messages = []
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT * FROM CHATS
+            WHERE listing_id = %s 
+            AND ((sender_id = %s AND receiver_id = %s) 
+            OR (sender_id = %s AND receiver_id = %s))
+            ORDER BY date ASC
+        """, [listing_id, buyer_id, seller_id, seller_id, buyer_id])
+        chat_messages = cursor.fetchall()
+    return chat_messages
+
+
+def add_new_chat(request, listing_id, buyer_id, seller_id):
+    new_message_added = False
+    if request.method == 'POST' and 'new_message' in request.POST:
+        sender_id = buyer_id
+        receiver_id = seller_id
+        new_message = request.POST.get('new_message')
+        print(new_message)
+        if new_message:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO CHATS (sender_id, receiver_id, message, date, listing_id)
+                    VALUES ( %s, %s, %s, NOW(), %s)
+                """, [sender_id, receiver_id, new_message, listing_id])
+            new_message_added = True
+
+        return new_message_added
 
 
 def bid(request, listing_id):
