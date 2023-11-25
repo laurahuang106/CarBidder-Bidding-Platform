@@ -835,6 +835,12 @@ def product_detail(request, listing_id):
 
 
 def bid(request, listing_id):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
+    user_id = request.session.get('user_id', '')
+
     # enable write commnets
     handle_comment_submission(request)
 
@@ -857,8 +863,8 @@ def bid(request, listing_id):
 
                 cursor.execute("""
                     INSERT INTO BIDDINGS (bidding_id, listing_id, user_id, bidding_amount, bidding_date, is_winner)
-                    VALUES (%s, %s, 2, %s, %s, %s)
-                """, [new_bidding_id, listing_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), False])
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, [new_bidding_id, listing_id,user_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), False])
                 connection.commit()
 
             return redirect('product_detail', listing_id=listing_id)
