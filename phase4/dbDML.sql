@@ -88,8 +88,8 @@ INSERT INTO VEHICLE_ORDERS (order_id, listing_id, buyer_id, seller_id, order_pri
 
 -- CHATS Table
 INSERT INTO CHATS (chat_id, sender_id, receiver_id, message, date, listing_id) VALUES
-(1, 2, 3, 'Is the car still available?', '2023-01-02 12:30:00', 1),
-(2, 3, 2, 'Yes, it is.', '2023-01-02 12:31:00', 1),
+(1, 3, 2, 'Is the car still available?', '2023-01-02 12:30:00', 1),
+(2, 2, 3, 'Yes, it is.', '2023-01-02 12:31:00', 1),
 (3, 4, 3, 'Any damages?', '2023-01-06 13:10:00', 2),
 (4, 3, 4, 'No damages. Almost new.', '2023-01-06 13:11:00', 2),
 (5, 5, 4, 'Can I get a discount?', '2023-01-08 14:20:00', 3),

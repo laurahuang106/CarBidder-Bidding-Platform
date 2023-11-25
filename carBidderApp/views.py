@@ -820,15 +820,37 @@ def product_detail(request, listing_id):
             # Redirect to the same page to display the success message
             return redirect('bid_success', listing_id=listing_id, user_id=request.user.id)
 
+    user_id = request.session.get('user_id', '')
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
+
+    # Get chat history
+    seller_id = result[20]
+    current_user_id = request.session.get('user_id', '')
+    chat_history = get_chat_history(listing_id, current_user_id, seller_id)
+    print(chat_history)
 
     # For GET requests or if the bid placement is not successful, render the page with product details
     return render(request, 'product_detail.html', {
         'product': product_dict,
         'user_name': user_name,
         'user_type': user_type,
+        'user_id': user_id,
+        'chat_history': chat_history
     })
+
+def get_chat_history(listing_id, buyer_id, seller_id):
+    chat_messages = []
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT * FROM CHATS
+            WHERE listing_id = %s 
+            AND ((sender_id = %s AND receiver_id = %s) 
+            OR (sender_id = %s AND receiver_id = %s))
+            ORDER BY date ASC
+        """, [listing_id, buyer_id, seller_id, seller_id, buyer_id])
+        chat_messages = cursor.fetchall()
+    return chat_messages
 
 
 def bid(request, listing_id):
