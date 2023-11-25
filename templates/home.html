@@ -13,10 +13,41 @@
             {% if user_name %}
                 Signed in as <strong>{{ user_name }}</strong>.
                 User type is <strong>{{ user_type }}</strong>.
+                {% if user_type == 'NORMAL_USER' %}
+                    <!-- Comment Box Starts Here -->
+                    <!-- Toggle Button for Comment Box -->
+                    <button onclick="toggleCommentBox()" style="margin-top: 20px; cursor: pointer; background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-size: 1rem;">Leave a Comment</button>
+
+                    <!-- Comment Box (Initially Hidden) -->
+                    <div id="commentBox" style="display: none; margin-top: 20px; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 600px; margin-left: auto; margin-right: auto; background-color: white;">
+                        <h2 style="font-size: 1.5rem; margin-bottom: 15px; text-align: left;">Your Comment</h2>
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <textarea class="form-control" id="userComment" name="comment" rows="4" placeholder="Write your comment here..." required style="margin-bottom: 10px;"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; background-color: #007bff; border: none;">Submit</button>
+                        </form>
+                    </div>
+                    <!-- Comment Box Ends Here -->
+                {% endif %}
             {% else %}
                 Not signed in.
             {% endif %}
         </div>
+        <!-- JavaScript to Toggle Comment Box Visibility -->
+        <script>
+            function toggleCommentBox() {
+                var commentBox = document.getElementById("commentBox");
+                if (commentBox.style.display === "none") {
+                    commentBox.style.display = "block";
+                } else {
+                    commentBox.style.display = "none";
+                }
+            }
+        </script>
+
+        <!-- Navigation Bar -->
         <ul class="nav nav-pills nav-fill">
 
            <li class="nav-item">

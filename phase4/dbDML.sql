@@ -122,16 +122,4 @@ INSERT INTO BALANCE_TRANSACTIONS (transaction_id, user_id, current_balance, date
 (16, 11, 35000.00, '2023-02-07 09:00:00', 'withdraw', 5000.00);
 
 
--- VIOLATION_REPORTS Table
-INSERT INTO VIOLATION_REPORTS (report_id, user_id, report_content) VALUES
-(1, 2, 'This listing with VIN:VIN000000000001 seems to be vehicle.'),
-(2, 3, 'This user "OliviaJohnson" has fake listings.'),
-(3, 4, 'This user "OliviaJohnson"\'s car has hidden damages.'),
-(4, 5, 'Spam messages from this user "JamesWilliams".'),
-(5, 6, 'This user "JamesWilliams" never repsonses to chat.'),
-(6, 7, 'Received a fake picture from this user "SophiaDavis".'),
-(7, 8, 'This user "SophiaDavis" is not replying to any messages.'),
-(8, 2, 'Suspicious activity on this user "SophiaDavis"\'s account.');
-
-
 

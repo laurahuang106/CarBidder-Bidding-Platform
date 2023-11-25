@@ -10,7 +10,6 @@ import json
 from django.http import JsonResponse
 from django.db import IntegrityError
 from datetime import datetime
-import uuid
 from django.contrib import messages
 import openai
 from dotenv import load_dotenv
@@ -26,6 +25,7 @@ cur_user = {}
 
 
 def home(request):
+    handle_comment_submission(request)
 
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
@@ -34,6 +34,24 @@ def home(request):
         'user_name': user_name,
     }
     return render(request, 'home.html', context)
+
+def handle_comment_submission(request):
+    if request.method == 'POST' and 'comment' in request.POST:
+        if 'user_id' in request.session:
+            user_id = request.session.get('user_id')
+            report_content = request.POST.get('comment')
+            try:
+                with connection.cursor() as cursor:
+                    query = """
+                        INSERT INTO VIOLATION_REPORTS (user_id, report_content)
+                        VALUES (%s, %s);
+                    """
+                    cursor.execute(query, (user_id, report_content))
+                    connection.commit()
+            except Exception as e:
+                print(f"An error occurred: {e}")
+
+            return redirect('home')
 
 
 def is_email_valid(email):
@@ -144,6 +162,9 @@ def logout(request):
 
 
 def profile(request):
+    # enable write commnets
+    handle_comment_submission(request)
+
     user_email = request.session.get('email', '')
     if user_email:
         update_session(request, user_email)
@@ -384,6 +405,9 @@ def add_funds(request):
 
 
 def orders(request):
+    # enable write commnets
+    handle_comment_submission(request)
+
     user_email = request.session.get('email', '')
     if user_email:
         update_session(request, user_email)
@@ -526,6 +550,9 @@ def weekly_reports(request):
 
 
 def other_user_profile(request, other_user_id):
+    # enable write commnets
+    handle_comment_submission(request)
+
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
 
@@ -574,6 +601,9 @@ def other_user_profile(request, other_user_id):
 
 
 def search_car(request):
+    # enable write commnets
+    handle_comment_submission(request)
+
     user_email = request.session.get('email', '')
     if user_email:
         update_session(request, user_email)
@@ -712,6 +742,9 @@ def search_car(request):
 
 
 def product_detail(request, listing_id):
+    # enable write commnets
+    handle_comment_submission(request)
+
     result = None
     current_bid = None
 
@@ -797,6 +830,9 @@ def product_detail(request, listing_id):
 
 
 def bid(request, listing_id):
+    # enable write commnets
+    handle_comment_submission(request)
+
     if request.method == 'POST':
         try:
             bid_amount = float(request.POST['bid_amount'])
@@ -859,6 +895,9 @@ def bid(request, listing_id):
 
 
 def chatbot(request):
+    # enable write commnets
+    handle_comment_submission(request)
+
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
 
