@@ -20,11 +20,11 @@ User Story
     
 * Install the required dependencies:
 ```
-MY_API_KEY = <your api key>
+pip install -r requirements.txt
 ```
 * Rename the file to `.env` and edit
 ```
-pip install -r requirements.txt
+MY_API_KEY = <your api key>
 ```
 * Run the application on localhost
 ```

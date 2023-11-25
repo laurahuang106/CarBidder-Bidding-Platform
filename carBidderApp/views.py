@@ -977,6 +977,8 @@ def buyer_rate_seller(request, order_id):
                 AND seller_rate_from_winner = TRUE;
             """, [listing_id, seller_id, winner_id])
             existing_rating = cursor.fetchone()
+    else :
+        return HttpResponseForbidden("Access denied: No Such Order.")
 
     if request.method == 'POST' and order_details:
         rate = request.POST.get('rate')
