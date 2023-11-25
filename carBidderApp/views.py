@@ -48,8 +48,10 @@ def handle_comment_submission(request):
                     """
                     cursor.execute(query, (user_id, report_content))
                     connection.commit()
+                messages.success(request, 'Your comment has been successfully submitted.')
             except Exception as e:
                 print(f"An error occurred: {e}")
+                messages.error(request, 'An error occurred while submitting your comment.')
 
             return redirect('home')
 
