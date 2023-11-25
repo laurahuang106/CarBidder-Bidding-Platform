@@ -911,12 +911,55 @@ def chat(request):
 
 def buyer_rate_seller(request, order_id):
     user_id = request.session.get('user_id', None)
-    user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
 
+    # Initialize existing_rating to None
+    existing_rating = None
 
+    # Retrieve listing_id, seller_id, and winner_id from the order
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT listing_id, seller_id, buyer_id FROM VEHICLE_ORDERS
+            WHERE order_id = %s;
+        """, [order_id])
+        order_details = cursor.fetchone()
 
-    return render(request, 'buyer_rate_seller.html', 
-                  {
-                   'user_name': user_name,
-                    'user_type': user_type,})
+    if order_details:
+        listing_id, seller_id, winner_id = order_details
+
+        if user_id != winner_id:
+            return HttpResponseForbidden("Access denied: You are not the buyer for this order.")
+
+        # Check if the rating already exists
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT rate FROM RATINGS
+                WHERE listing_id = %s AND seller_id = %s AND winner_id = %s
+                AND seller_rate_from_winner = TRUE;
+            """, [listing_id, seller_id, winner_id])
+            existing_rating = cursor.fetchone()
+
+    if request.method == 'POST' and order_details:
+        rate = request.POST.get('rate')
+
+        with connection.cursor() as cursor:
+            if existing_rating:
+                # Update the existing rating
+                cursor.execute("""
+                    UPDATE RATINGS SET rate = %s
+                    WHERE listing_id = %s AND seller_id = %s AND winner_id = %s
+                    AND seller_rate_from_winner = TRUE;
+                """, [rate, listing_id, seller_id, winner_id])
+            else:
+                # Insert a new rating
+                cursor.execute("""
+                    INSERT INTO RATINGS (listing_id, seller_id, winner_id, seller_rate_from_winner, winner_rate_from_seller, rate)
+                    VALUES (%s, %s, %s, TRUE, FALSE, %s);
+                """, [listing_id, seller_id, winner_id, rate])
+            return redirect('orders')  # Redirect to the orders page or another appropriate page
+
+    return render(request, 'buyer_rate_seller.html', {
+        'user_name': user_name,
+        'order_id': order_id,
+        'existing_rating': existing_rating[0] if existing_rating else None
+    })

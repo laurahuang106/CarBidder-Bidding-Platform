@@ -66,10 +66,12 @@ INSERT INTO BIDDINGS (bidding_id, listing_id, user_id, bidding_amount, bidding_d
 INSERT INTO RATINGS (listing_id, seller_id, winner_id, seller_rate_from_winner, winner_rate_from_seller, rate) VALUES
 (1, 2, 4, TRUE, FALSE, 4),
 (2, 3, 6, FALSE, TRUE, 5),
-(3, 4, 5, TRUE, TRUE, 3),
-(5, 6, 7, FALSE, FALSE, 2),
-(7, 8, 3, TRUE, TRUE, 5),
-(8, 9, 2, FALSE, FALSE, 1),
+(3, 4, 5, TRUE, FALSE, 3),
+(4, 2, 4, FALSE, TRUE, 4),
+(5, 6, 7, TRUE, FALSE, 2),
+(6, 6, 7, FALSE, TRUE, 5),
+(7, 8, 3, TRUE, FALSE, 5),
+(8, 9, 2, FALSE, TRUE, 1),
 (9, 9, 6, TRUE, FALSE, 4);
 
 
