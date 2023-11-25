@@ -864,14 +864,13 @@ def add_new_chat(request, listing_id, buyer_id, seller_id):
         sender_id = buyer_id
         receiver_id = seller_id
         new_message = request.POST.get('new_message')
-        chat_id = 205
         print(new_message)
         if new_message:
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    INSERT INTO CHATS (chat_id, sender_id, receiver_id, message, date, listing_id)
-                    VALUES (%s, %s, %s, %s, NOW(), %s)
-                """, [chat_id, sender_id, receiver_id, new_message, listing_id])
+                    INSERT INTO CHATS (sender_id, receiver_id, message, date, listing_id)
+                    VALUES ( %s, %s, %s, NOW(), %s)
+                """, [sender_id, receiver_id, new_message, listing_id])
             new_message_added = True
         
         return new_message_added
