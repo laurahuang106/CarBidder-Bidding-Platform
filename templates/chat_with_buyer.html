@@ -60,7 +60,9 @@
             </div>
             <form method="post" action="{% url 'chat_with_buyer' %}">
                 {% csrf_token %}
-                <input type="hidden" name="selected_chat_id" value="{{ selected_chat_id }}">
+                <input type="hidden" name="selected_listing_id" value="{{ selected_listing_id }}">
+                <input type="hidden" name="selected_buyer_name" value="{{ selected_buyer_name }}">
+                <input type="hidden" name="selected_buyer_id" value="{{ selected_buyer_id }}">
                 <textarea name="new_message" placeholder="Type your reply here..." style="width: 100%; margin-bottom: 10px;"></textarea>
                 <button type="submit">Send</button>
             </form>

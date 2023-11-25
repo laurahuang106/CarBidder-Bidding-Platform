@@ -894,6 +894,7 @@ def add_new_chat(request, listing_id, buyer_id, seller_id):
         sender_id = buyer_id
         receiver_id = seller_id
         new_message = request.POST.get('new_message')
+        print("in function")
         print(new_message)
         if new_message:
             with connection.cursor() as cursor:
@@ -1179,12 +1180,20 @@ def chat_with_buyer(request):
     selected_listing_id = None
     selected_buyer_name = None
     selected_buyer_id = None
+    
+    if request.method == 'POST' and 'new_message' in request.POST:
+        selected_listing_id = request.POST.get('selected_listing_id')
+        selected_buyer_name = request.POST.get('selected_buyer_name')
+        selected_buyer_id = request.POST.get('selected_buyer_id')
+        if add_new_chat(request, selected_listing_id, current_user_id, selected_buyer_id):
+            return redirect('chat_with_buyer')
+    
     if request.method == 'POST' and 'selected_listing_id' in request.POST:
         selected_listing_id = request.POST.get('selected_listing_id')
         selected_buyer_name = request.POST.get('selected_buyer_name')
         selected_buyer_id = request.POST.get('selected_buyer_id')
         chat_history = get_chat_history(selected_listing_id, current_user_id, selected_buyer_id)
-
+    
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT c.chat_id, c.message, c.date, c.listing_id, u.user_name, u.user_id
