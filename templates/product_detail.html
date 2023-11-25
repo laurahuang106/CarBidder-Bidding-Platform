@@ -102,7 +102,7 @@
               {% for chat in chat_history %}
                 {% if chat.1 == user_id %}
                   <div class="chat-message-sent">
-                      <strong>Me</strong>: {{ chat.3 }}
+                      <strong>{{ user_name }}</strong>: {{ chat.3 }}
                       <br>
                       <small>{{ chat.4|date:"Y-m-d H:i" }}</small>
                   </div>
@@ -118,8 +118,11 @@
               {% endfor %}
             </div>
             <div class="chat-box-footer" id="chatFooter" style="display: flex;">
-                <input type="text" id="chatMessage" placeholder="Type a message..." style="flex-grow: 1; padding: 5px; margin-right: 5px;">
-                <button onclick="sendMessage()">Send</button>
+              <form id="chat-form" method="post" action="">
+                  {% csrf_token %}
+                  <input type="text" name="new_message" placeholder="Type a message..." style="flex-grow: 1; padding: 5px; margin-right: 5px;">
+                  <input type="submit" value="Send">
+              </form>
             </div>
           </div>
         </div>
@@ -166,19 +169,11 @@
               chatBox.style.display = 'none';
           }
 
-          function sendMessage() {
-              var message = document.getElementById('chatMessage').value;
-              var chatBody = document.getElementById('chatBody');
-              
-              if (message.trim() !== '') {
-                  var newMessage = document.createElement('div');
-                  newMessage.textContent = message;
-                  newMessage.style.marginBottom = '10px';
-                  chatBody.appendChild(newMessage);
-
-                  document.getElementById('chatMessage').value = ''; // Clear input field
-              }
+          function scrollToBottom() {
+            var chatBox = document.getElementById('chatBody');
+            chatBox.scrollTop = chatBox.scrollHeight;
           }
+          window.onload = scrollToBottom;
         </script>
 
         <!-- Second Column: Product Details -->
