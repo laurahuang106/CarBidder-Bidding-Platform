@@ -39,7 +39,7 @@
                 User type is <strong>{{ user_type }}</strong>.
                 {% if user_type == 'NORMAL_USER' %}
                     <!-- Toggle Button for Comment Box -->
-                    <i onclick="toggleCommentBox()" class="fas fa-pencil-alt" style="cursor: pointer; color: #007bff; margin-left: 10px; vertical-align: middle;"></i>
+                    <i onclick="toggleCommentBox()" class="fas fa-pencil-alt" style="cursor: pointer; color: #007bff; margin-left: 10px; vertical-align: middle;">leave your comments</i>
 
                     <div id="message-container">
                         {% if messages %}
@@ -128,6 +128,13 @@
                     <li class="nav-item">
                         <a class="nav-link {% if current_page == 'orders' %}active{% endif %}" href="{% url 'orders' %}">Orders</a>
                     </li>
+
+                    {% if is_seller == True %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if current_page == 'chat_with_buyer' %}active{% endif %}" href="{% url 'chat_with_buyer' %}">Chat With Buyer</a>
+                        </li>
+                    {% endif %}
+
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>

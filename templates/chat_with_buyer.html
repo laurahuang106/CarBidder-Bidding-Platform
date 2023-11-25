@@ -1,0 +1,137 @@
+{% extends "home.html" %}
+{% block body %}
+    <h1>Chat with Buyers</h1>
+    <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Buyer</th>
+                    <th>Listing ID</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for chat_id, message, date, listing_id, buyer_name, buyer_id in chats %}
+                    <tr>
+                        <td>{{ buyer_name }}</td>
+                        <td>{{ listing_id }}</td>
+                        <td>{{ message }}</td>
+                        <td>{{ date|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            <form method="post" action="{% url 'chat_with_buyer' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="selected_listing_id" value="{{ listing_id }}">
+                                <input type="hidden" name="selected_buyer_name" value="{{ buyer_name }}">
+                                <input type="hidden" name="selected_buyer_id" value="{{ buyer_id }}">
+                                <button type="submit" name="reply">Reply</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">No chat messages.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if selected_listing_id %}
+        <div class="chat-history-container">
+            <h2>Chat with {{ selected_buyer_name }} (ID: {{ selected_buyer_id }}) about Listing {{ selected_listing_id }}</h2>
+            <div class="chat-history">
+                {% for chat in chat_history %}
+                    {% if chat.1 == user_id %}
+                        <div class="chat-message-sent">
+                            <strong>{{ user_name }}</strong>: {{ chat.3 }}
+                            <br>
+                            <small>{{ chat.4|date:"Y-m-d H:i" }}</small>
+                        </div>
+                    {% else %}
+                        <div class="chat-message-received">
+                            <strong>{{ selected_buyer_name }}</strong>: {{ chat.3 }}
+                            <br>
+                            <small>{{ chat.4|date:"Y-m-d H:i" }}</small>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <p>No messages yet.</p>
+                {% endfor %}
+            </div>
+            <form method="post" action="{% url 'chat_with_buyer' %}">
+                {% csrf_token %}
+                <input type="hidden" name="selected_chat_id" value="{{ selected_chat_id }}">
+                <textarea name="new_message" placeholder="Type your reply here..." style="width: 100%; margin-bottom: 10px;"></textarea>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    {% else %}
+        <div class="chat-history-container">
+            <h2>Please select a chat</h2>
+        </div>
+    {% endif %}
+
+    <style>
+        th, td {
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .chat-history-container {
+            margin: 20px auto; /* Top & bottom margins 20px, auto for left & right */
+            max-width: 600px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .chat-history {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .chat-message-sent, .chat-message-received {
+            padding: 5px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            background-color: #e7f5ff; /* Light blue for sent messages */
+        }
+
+        .chat-message-sent {
+            text-align: right;
+        }
+
+        .chat-message-received {
+            text-align: left;
+            background-color: #f1f1f1; /* Light grey for received messages */
+        }
+
+        textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+{% endblock %}

@@ -96,8 +96,8 @@ INSERT INTO CHATS (chat_id, sender_id, receiver_id, message, date, listing_id) V
 (6, 4, 5, 'Sorry, the price is fixed.', '2023-01-08 14:21:00', 3),
 (7, 6, 5, 'Is the price negotiable?', '2023-01-11 15:30:00', 4),
 (8, 5, 6, 'A little bit, but not much.', '2023-01-11 15:31:00', 4),
-(9, 11, 3, 'Is the car still available?', '2023-01-02 12:30:00', 1),
-(10, 3, 11, 'Yes, it is.', '2023-01-02 12:31:00', 1);
+(9, 11, 2, 'Is the car still available?', '2023-01-02 12:30:00', 1),
+(10, 2, 11, 'Yes, it is.', '2023-01-02 12:31:00', 1);
 
 
 -- BALANCE_TRANSACTIONS Table

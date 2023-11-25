@@ -34,7 +34,7 @@ CREATE TABLE LISTED_VEHICLES (
     listing_end_date DATETIME,
     listing_status BOOLEAN DEFAULT FALSE, -- FALSE means not active
     FOREIGN KEY (seller_id) REFERENCES USERS(user_id)
-)AUTO_INCREMENT=11;
+);
 
 
 CREATE TABLE BIDDINGS (
