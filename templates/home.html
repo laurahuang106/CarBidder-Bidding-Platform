@@ -94,15 +94,17 @@
 
         <!-- Navigation Bar -->
         <ul class="nav nav-pills nav-fill">
-
-           <li class="nav-item">
-               <a class="nav-link" href="{% url 'search_car' %}">Search</a>
-           </li>
-           <li class="nav-item">
-            <a class="nav-link" href="{% url 'chatbot' %}">Chatbot</a>
-            </li>
             {% if user_name %}
              </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_page == 'search_car' or current_page == 'product_detail' %}active{% endif %}" href="{% url 'search_car' %}">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_page == 'sell_post' or current_page == 'sell_post_success' %}active{% endif %}" href="{% url 'sell_post' %}">Sell</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_page == 'chatbot' %}active{% endif %}" href="{% url 'chatbot' %}">Chatbot</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {% if current_page == 'profile' %}active{% endif %}" href="{% url 'profile' %}">Profile</a>
                 </li>

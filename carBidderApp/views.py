@@ -768,6 +768,7 @@ def search_car(request):
         'mileages': mileages,
         'prices': prices,
         'error_message': error_message,
+        'current_page': 'search_car',
     })
 
 
@@ -872,6 +873,7 @@ def product_detail(request, listing_id):
         'is_seller': is_seller
     })
 
+
 def get_chat_history(listing_id, buyer_id, seller_id):
     chat_messages = []
     with connection.cursor() as cursor:
@@ -884,6 +886,7 @@ def get_chat_history(listing_id, buyer_id, seller_id):
         """, [listing_id, buyer_id, seller_id, seller_id, buyer_id])
         chat_messages = cursor.fetchall()
     return chat_messages
+
 
 def add_new_chat(request, listing_id, buyer_id, seller_id):
     new_message_added = False
@@ -899,7 +902,7 @@ def add_new_chat(request, listing_id, buyer_id, seller_id):
                     VALUES ( %s, %s, %s, NOW(), %s)
                 """, [sender_id, receiver_id, new_message, listing_id])
             new_message_added = True
-        
+
         return new_message_added
 
 
@@ -973,6 +976,7 @@ def bid(request, listing_id):
         'user_name': user_name,
         'user_type': user_type,
         'is_seller': is_seller,
+        'current_page': 'product_detail',
     })
 
 
@@ -985,10 +989,10 @@ def chatbot(request):
     is_seller = request.session.get('is_seller', '')
 
     return render(request, 'chatbot.html', {
-
         'user_name': user_name,
         'user_type': user_type,
         'is_seller': is_seller,
+        'current_page': 'chatbot',
     })
 
 
@@ -1143,7 +1147,8 @@ def sell_post(request):
         'user_type': user_type,
         'user_name': user_name,
         'user_id': user_id,
-        'is_seller': is_seller
+        'is_seller': is_seller,
+        'current_page': 'sell_post',
     })
 
 
@@ -1162,7 +1167,8 @@ def sell_post_success(request):
         'user_type': user_type,
         'user_name': user_name,
         'user_id': user_id,
-        'is_seller': is_seller
+        'is_seller': is_seller,
+        'current_page': 'sell_post_success',
     })
 
 # Chat with buyer view function
