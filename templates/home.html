@@ -6,6 +6,8 @@
         <title>{% block title %}Car Bidder{% endblock %}</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
     </head>
     <body>
         <h1 style="text-align: center;">Car Bidder</h1>
@@ -16,7 +18,7 @@
                 {% if user_type == 'NORMAL_USER' %}
                     <!-- Comment Box Starts Here -->
                     <!-- Toggle Button for Comment Box -->
-                    <button onclick="toggleCommentBox()" style="margin-top: 20px; cursor: pointer; background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-size: 1rem;">Leave a Comment</button>
+                    <i onclick="toggleCommentBox()" class="fas fa-pencil-alt" style="cursor: pointer; color: #007bff; margin-left: 10px; vertical-align: middle;"></i>
 
                     <!-- Comment Box (Initially Hidden) -->
                     <div id="commentBox" style="display: none; margin-top: 20px; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 600px; margin-left: auto; margin-right: auto; background-color: white;">
@@ -46,6 +48,7 @@
                 }
             }
         </script>
+        <br>
 
         <!-- Navigation Bar -->
         <ul class="nav nav-pills nav-fill">
