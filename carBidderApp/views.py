@@ -223,7 +223,7 @@ def profile(request):
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
-
+    
     # Creating the context dictionary
     context = {
         'user_id': user_id,
@@ -1129,31 +1129,41 @@ def choose_bid(request, listing_id):
     user_id = request.session.get('user_id', '')
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
-   
 
-    # Fetch bid details using bidding_id
+    # Check if the listing already has a winning bid
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT b.*, u.*
-            FROM BIDDINGS b
-            JOIN USERS u ON b.user_id = u.user_id
-            WHERE b.listing_id = %s
+            SELECT is_winner
+            FROM BIDDINGS
+            WHERE listing_id = %s AND is_winner = TRUE
         """, [listing_id])
+        winner_exists = cursor.fetchone() is not None
 
-    bids = cursor.fetchall()
+    # Fetch bid details using bidding_id
+    bids_list = []
+    if not winner_exists:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT b.*, u.*
+                FROM BIDDINGS b
+                JOIN USERS u ON b.user_id = u.user_id
+                WHERE b.listing_id = %s
+            """, [listing_id])
+
+            bids = cursor.fetchall()
     
 
 # Check if the results are not empty
-    bids_list = []
-    if bids:
-            for bid in bids:
-                bids_list.append({
-                    'bidding_id': bid[0],
-                    'user_id': bid[2],
-                    'user_name': bid[7],  # Assuming the user_name is the 8th column in the SELECT result
-                    'bidding_amount': bid[3],
-                    'bidding_date': bid[4].strftime("%Y-%m-%d %H:%M:%S"),  # Formatting datetime to string
-                })
+   
+        if bids:
+                for bid in bids:
+                    bids_list.append({
+                        'bidding_id': bid[0],
+                        'user_id': bid[2],
+                        'user_name': bid[7],  # Assuming the user_name is the 8th column in the SELECT result
+                        'bidding_amount': bid[3],
+                        'bidding_date': bid[4].strftime("%Y-%m-%d %H:%M:%S"),  # Formatting datetime to string
+                    })
         
     # if not bid_details:
     #     # If there is no bid with the given bidding_id
@@ -1181,10 +1191,11 @@ def choose_bid(request, listing_id):
     #     return redirect('profile')
     # Pass the bid details to the template
     return render(request, 'choose_bid.html', {
-    'bids_list': bids_list,
-    'user_type': user_type,
-    'user_name': user_name,
-    'user_id': user_id,
-    'listing_id': listing_id,
-})
+        'winner_exists': winner_exists,
+        'bids_list': bids_list,
+        'user_type': user_type,
+        'user_name': user_name,
+        'user_id': user_id,
+        'listing_id': listing_id,
+    })
     
