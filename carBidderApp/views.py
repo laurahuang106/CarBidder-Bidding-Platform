@@ -743,6 +743,7 @@ def search_car(request):
         'mileages': mileages,
         'prices': prices,
         'error_message': error_message,
+        'current_page': 'search_car',
     })
 
 
@@ -831,6 +832,7 @@ def product_detail(request, listing_id):
         'product': product_dict,
         'user_name': user_name,
         'user_type': user_type,
+        'current_page': 'product_detail',
     })
 
 
@@ -902,6 +904,7 @@ def bid(request, listing_id):
         'listing_id': listing_id,
         'user_name': user_name,
         'user_type': user_type,
+        'current_page': 'product_detail',
     })
 
 
@@ -913,9 +916,9 @@ def chatbot(request):
     user_type = request.session.get('user_type', '')
 
     return render(request, 'chatbot.html', {
-
         'user_name': user_name,
         'user_type': user_type,
+        'current_page': 'chatbot',
     })
 
 
@@ -1066,7 +1069,8 @@ def sell_post(request):
     return render(request, 'sell_post.html', {
         'user_type': user_type,
         'user_name': user_name,
-        'user_id': user_id
+        'user_id': user_id,
+        'current_page': 'sell_post',
     })
 
 
@@ -1083,5 +1087,6 @@ def sell_post_success(request):
     return render(request, 'sell_post_success.html', {
         'user_type': user_type,
         'user_name': user_name,
-        'user_id': user_id
+        'user_id': user_id,
+        'current_page': 'sell_post_success',
     })
