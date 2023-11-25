@@ -35,6 +35,7 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
+
 def handle_comment_submission(request):
     if request.method == 'POST' and 'comment' in request.POST:
         if 'user_id' in request.session:
@@ -48,10 +49,12 @@ def handle_comment_submission(request):
                     """
                     cursor.execute(query, (user_id, report_content))
                     connection.commit()
-                messages.success(request, 'Your comment has been successfully submitted.')
+                messages.success(
+                    request, 'Your comment has been successfully submitted.')
             except Exception as e:
                 print(f"An error occurred: {e}")
-                messages.error(request, 'An error occurred while submitting your comment.')
+                messages.error(
+                    request, 'An error occurred while submitting your comment.')
 
             return redirect('home')
 
@@ -979,7 +982,7 @@ def buyer_rate_seller(request, order_id):
                 AND seller_rate_from_winner = TRUE;
             """, [listing_id, seller_id, winner_id])
             existing_rating = cursor.fetchone()
-    else :
+    else:
         return HttpResponseForbidden("Access denied: No Such Order.")
 
     if request.method == 'POST' and order_details:
@@ -1005,4 +1008,71 @@ def buyer_rate_seller(request, order_id):
         'user_name': user_name,
         'order_id': order_id,
         'existing_rating': existing_rating[0] if existing_rating else None
+    })
+
+
+# post new vehicle listings
+def sell_post(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
+    user_id = request.session.get('user_id', '')
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+
+    if request.method == 'POST':
+        # Retrieve form data
+        vin = request.POST.get('vin')
+        image_url = request.POST.get('image_url')
+        vehicle_description = request.POST.get('vehicle_description')
+        make = request.POST.get('make')
+        model = request.POST.get('model')
+        fuel_type = request.POST.get('fuel_type')
+        year_of_production = request.POST.get('year_of_production')
+        mileage = request.POST.get('mileage')
+        price = request.POST.get('price')
+        exterior_color = request.POST.get('exterior_color')
+        interior_color = request.POST.get('interior_color')
+        state = request.POST.get('state')
+        zip_code = request.POST.get('zip_code')
+        listing_end_date = request.POST.get('listing_end_date')
+
+        try:
+            with connection.cursor() as cursor:
+                query = """
+                    INSERT INTO LISTED_VEHICLES (VIN, seller_id, image_url, vehicle_description, make, model, fuel_type, year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_start_date, listing_end_date)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s);
+                """
+                cursor.execute(query, (vin, user_id, image_url, vehicle_description, make, model, fuel_type,
+                               year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_end_date))
+                connection.commit()
+                # Redirect to a success page or display a success message
+
+                return HttpResponseRedirect('sell_post_success')
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+    # Render the sell page for GET request or in case of an error
+    return render(request, 'sell_post.html', {
+        'user_type': user_type,
+        'user_name': user_name,
+        'user_id': user_id
+    })
+
+
+# post new vehicle listings successful
+def sell_post_success(request):
+    user_email = request.session.get('email', '')
+    if user_email:
+        update_session(request, user_email)
+
+    user_id = request.session.get('user_id', '')
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+
+    return render(request, 'sell_post_success.html', {
+        'user_type': user_type,
+        'user_name': user_name,
+        'user_id': user_id
     })
