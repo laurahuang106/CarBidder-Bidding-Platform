@@ -1,0 +1,138 @@
+{% extends "home.html" %} {% block body %} {% if user_name %}
+<body>
+  <div class="container mt-5">
+    <h2>Vehicle Listing Form</h2>
+    <form action="{% url 'sell_post' %}" method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="vin">VIN</label>
+        <input
+          type="text"
+          class="form-control"
+          id="vin"
+          name="vin"
+          maxlength="17"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="image_url">Image URL</label>
+        <input
+          type="text"
+          class="form-control"
+          id="image_url"
+          name="image_url"
+        />
+      </div>
+      <div class="form-group">
+        <label for="vehicle_description">Vehicle Description</label>
+        <textarea
+          class="form-control"
+          id="vehicle_description"
+          name="vehicle_description"
+          maxlength="255"
+        ></textarea>
+      </div>
+      <div class="form-group">
+        <label for="make">Make</label>
+        <input
+          type="text"
+          class="form-control"
+          id="make"
+          name="make"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="model">Model</label>
+        <input
+          type="text"
+          class="form-control"
+          id="model"
+          name="model"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="fuel_type">Fuel Type</label>
+        <input
+          type="text"
+          class="form-control"
+          id="fuel_type"
+          name="fuel_type"
+        />
+      </div>
+      <div class="form-group">
+        <label for="year_of_production">Year of Production</label>
+        <input
+          type="number"
+          class="form-control"
+          id="year_of_production"
+          name="year_of_production"
+        />
+      </div>
+      <div class="form-group">
+        <label for="mileage">Mileage</label>
+        <input type="number" class="form-control" id="mileage" name="mileage" />
+      </div>
+      <div class="form-group">
+        <label for="price">Price</label>
+        <input type="number" class="form-control" id="price" name="price" />
+      </div>
+      <div class="form-group">
+        <label for="exterior_color">Exterior Color</label>
+        <input
+          type="text"
+          class="form-control"
+          id="exterior_color"
+          name="exterior_color"
+        />
+      </div>
+      <div class="form-group">
+        <label for="interior_color">Interior Color</label>
+        <input
+          type="text"
+          class="form-control"
+          id="interior_color"
+          name="interior_color"
+        />
+      </div>
+      <div class="form-group">
+        <label for="state">State</label>
+        <input
+          type="text"
+          class="form-control"
+          id="state"
+          name="state"
+          maxlength="2"
+        />
+      </div>
+      <div class="form-group">
+        <label for="zip_code">Zip Code</label>
+        <input
+          type="text"
+          class="form-control"
+          id="zip_code"
+          name="zip_code"
+          maxlength="10"
+        />
+      </div>
+      <div class="form-group">
+        <label for="listing_end_date">Listing End Date</label>
+        <input
+          type="datetime-local"
+          class="form-control"
+          id="listing_end_date"
+          name="listing_end_date"
+        />
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+  <!-- Include Bootstrap JS and jQuery -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+{% endif %} {% endblock %}

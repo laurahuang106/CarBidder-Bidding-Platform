@@ -12,9 +12,8 @@ CREATE TABLE USERS (
     is_allow_list BOOLEAN DEFAULT TRUE -- TRUE means allowed to list
 );
 
-
 CREATE TABLE LISTED_VEHICLES (
-    listing_id INT PRIMARY KEY,
+    listing_id INT AUTO_INCREMENT PRIMARY KEY,
     vehicle_id INT NOT NULL,
     VIN VARCHAR(17) UNIQUE,
     seller_id INT NOT NULL,

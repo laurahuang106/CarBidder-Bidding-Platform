@@ -1,0 +1,13 @@
+{% extends "home.html" %} {% block body %} {% if user_name %}
+<div class="container mt-5">
+  <div class="jumbotron">
+    <h1 class="display-4">You have successfully created this listing!</h1>
+    <p class="lead">Congratulations on your new vehicle listing.</p>
+    <hr class="my-4" />
+    <p>Click the button below to view all your listings.</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'profile' %}" role="button"
+      >View Listings</a
+    >
+  </div>
+</div>
+{% endif %} {% endblock %}
