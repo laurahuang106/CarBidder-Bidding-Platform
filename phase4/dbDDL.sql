@@ -51,12 +51,13 @@ CREATE TABLE BIDDINGS (
 
 
 CREATE TABLE RATINGS (
-    rating_id INT PRIMARY KEY,
+    rating_id INT AUTO_INCREMENT PRIMARY KEY,
     listing_id INT NOT NULL,
     seller_id INT NOT NULL,
     winner_id INT NOT NULL,
-    seller_rate_from_winner DECIMAL(3, 1) NOT NULL,
-    winner_rate_from_seller DECIMAL(3, 1) NOT NULL,
+    seller_rate_from_winner BOOLEAN NOT NULL, -- True or false
+    winner_rate_from_seller BOOLEAN NOT NULL, -- True or false
+    rate INT NOT NULL DEFAULT 5 , -- From 1-5
     FOREIGN KEY (listing_id) REFERENCES LISTED_VEHICLES(listing_id),
     FOREIGN KEY (seller_id) REFERENCES USERS(user_id),
     FOREIGN KEY (winner_id) REFERENCES USERS(user_id)
@@ -128,44 +129,146 @@ BEGIN
     ORDER BY bidding_amount DESC LIMIT 1;
 END //
 
-DELIMITER ;
-
-DELIMITER //
 
 CREATE TRIGGER update_user_ratings
 AFTER INSERT ON RATINGS
 FOR EACH ROW
 BEGIN
-    -- Update seller's ratings and count
-    UPDATE USERS
-    SET
-        seller_rating = (
-            SELECT AVG(seller_rate_from_winner)
-            FROM RATINGS
-            WHERE seller_id = NEW.seller_id
-        ),
-        num_of_seller_rating = (
-            SELECT COUNT(*)
-            FROM RATINGS
-            WHERE seller_id = NEW.seller_id
-        )
-    WHERE user_id = NEW.seller_id;
+    -- Update seller rating and count
+    IF NEW.seller_rate_from_winner THEN
+        UPDATE USERS
+        SET seller_rating = (seller_rating * num_of_seller_rating + NEW.rate) / (num_of_seller_rating + 1),
+            num_of_seller_rating = num_of_seller_rating + 1
+        WHERE user_id = NEW.seller_id;
+    END IF;
 
-    -- Update winner's ratings and count
-    UPDATE USERS
-    SET
-        buyer_rating = (
-            SELECT AVG(winner_rate_from_seller)
-            FROM RATINGS
-            WHERE winner_id = NEW.winner_id
-        ),
-        num_of_buyer_rating = (
-            SELECT COUNT(*)
-            FROM RATINGS
-            WHERE winner_id = NEW.winner_id
-        )
-    WHERE user_id = NEW.winner_id;
+    -- Update buyer rating and count
+    IF NEW.winner_rate_from_seller THEN
+        UPDATE USERS
+        SET buyer_rating = (buyer_rating * num_of_buyer_rating + NEW.rate) / (num_of_buyer_rating + 1),
+            num_of_buyer_rating = num_of_buyer_rating + 1
+        WHERE user_id = NEW.winner_id;
+    END IF;
 END;
+
 //
 
+
+-- Procedure and Event: Update vehicle_listing if listing_end_date is reached. 
+-- Also, update BIDDINGS, ORDERS, TRANSACTIONS, USERS table.
+CREATE PROCEDURE GetHighestBid(_listing_id INT)
+BEGIN
+    -- Temporary table to store the highest bid details
+    CREATE TEMPORARY TABLE IF NOT EXISTS TempHighestBid (
+        bidding_id INT,
+        user_id INT,
+        bidding_amount DECIMAL(10, 2)
+    );
+
+    -- Clearing the temporary table
+    TRUNCATE TABLE TempHighestBid;
+
+    -- Inserting the highest bid details into the temporary table
+    INSERT INTO TempHighestBid (bidding_id, user_id, bidding_amount)
+    SELECT bidding_id, user_id, bidding_amount
+    FROM BIDDINGS
+    WHERE listing_id = _listing_id 
+    ORDER BY bidding_amount DESC LIMIT 1;
+END //
+
+
+CREATE PROCEDURE UpdateExpiredListings()
+BEGIN
+    DECLARE finished INTEGER DEFAULT 0;
+    DECLARE lst_id INT;
+    DECLARE high_bid_id INT;
+    DECLARE high_bid_user_id INT;
+    DECLARE high_bid_amount DECIMAL(10, 2);
+    DECLARE seller_id INT;
+    DECLARE new_order_id INT;
+    DECLARE new_transaction_id INT;
+
+    -- Cursor to select expired listings
+    DECLARE expired_listings CURSOR FOR 
+        SELECT listing_id 
+        FROM LISTED_VEHICLES 
+        WHERE listing_end_date < NOW() AND listing_status = TRUE;
+
+    -- Handler for the end of the cursor loop
+    DECLARE CONTINUE HANDLER 
+        FOR NOT FOUND SET finished = 1;
+
+    OPEN expired_listings;
+
+    listings_loop: LOOP
+        FETCH expired_listings INTO lst_id;
+        IF finished = 1 THEN 
+            LEAVE listings_loop;
+        END IF;
+
+        -- Start transaction
+        START TRANSACTION;
+
+        -- Updating the listing status
+        UPDATE LISTED_VEHICLES
+        SET listing_status = FALSE
+        WHERE listing_id = lst_id;
+
+        -- Finding the highest bid
+        CALL GetHighestBid(lst_id);
+
+        -- Fetch the highest bid details
+        SELECT bidding_id, user_id, bidding_amount INTO high_bid_id, high_bid_user_id, high_bid_amount
+		FROM TempHighestBid;
+
+        -- Fetch seller ID from listed vehicles
+        SELECT seller_id INTO seller_id
+        FROM LISTED_VEHICLES
+        WHERE listing_id = lst_id;
+
+        -- Create new order
+        INSERT INTO VEHICLE_ORDERS (listing_id, buyer_id, seller_id, order_price, order_date)
+        VALUES (lst_id, high_bid_user_id, seller_id, high_bid_amount, NOW());
+
+        -- Get the new order ID
+        SET new_order_id = LAST_INSERT_ID();
+
+		-- Update balance transactions for buyer
+		INSERT INTO BALANCE_TRANSACTIONS (user_id, current_balance, date, transaction_type, transaction_amount)
+		SELECT 
+			high_bid_user_id, 
+			(u.balance - high_bid_amount), 
+			NOW(), 
+			'pay', 
+			high_bid_amount
+		FROM USERS u
+		WHERE u.user_id = high_bid_user_id;
+
+		-- Update balance transactions for seller
+		INSERT INTO BALANCE_TRANSACTIONS (user_id, current_balance, date, transaction_type, transaction_amount)
+		SELECT 
+			seller_id, 
+			(u.balance + high_bid_amount), 
+			NOW(), 
+			'receive', 
+			high_bid_amount
+		FROM USERS u
+		WHERE u.user_id = seller_id;
+        
+    END LOOP;
+
+    CLOSE expired_listings;
+
+END //
 DELIMITER ;
+    
+CREATE EVENT update_listing_status
+ON SCHEDULE EVERY 1 day
+STARTS CURRENT_TIMESTAMP
+DO
+    CALL UpdateExpiredListings();
+
+
+
+
+

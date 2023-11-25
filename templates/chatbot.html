@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+{% extends "home.html" %} {% block body %} {% if user_name %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat with OpenAI</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      #chatWindow {
+        height: 300px;
+        overflow-y: scroll;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container py-4">
+      <div class="row">
+        <div class="col-md-8 offset-md-2">
+          <div id="chatWindow" class="border rounded p-3"></div>
+          <input
+            type="text"
+            id="userInput"
+            class="form-control my-3"
+            placeholder="Type your message here..."
+          />
+          <button onclick="sendMessage()" class="btn btn-primary">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      function sendMessage() {
+        var input = document.getElementById("userInput");
+        var message = input.value.trim();
+        if (message === "") return;
+
+        addMessage("User: " + message);
+        input.value = "";
+
+        fetch("/chat/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify({ message: message }),
+        })
+          .then((response) => response.json())
+          .then((data) => addMessage("AI: " + data.response))
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function addMessage(text) {
+        var chatWindow = document.getElementById("chatWindow");
+        chatWindow.innerHTML += "<p>" + text + "</p>";
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      }
+
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1)
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+    </script>
+  </body>
+</html>
+{% else %}
+<div class="container mt-4">
+  <p>You need to sign in to view this page.</p>
+</div>
+{% endif %} {% endblock %}

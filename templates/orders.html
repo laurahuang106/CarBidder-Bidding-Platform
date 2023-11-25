@@ -56,6 +56,7 @@
                 <th>Is Shipped</th>
                 <th>Tracking Number</th>
                 <th>Is Paid</th>
+                <th>Rate Seller</th>
             </tr>
         </thead>
         <tbody>
@@ -75,6 +76,13 @@
                     {% endif %}
                 </td>
                 <td>{{ order.7|yesno:"Yes,No" }}</td>
+                <td>
+                    {% if order.5 and order.7 %}
+                        <a href="{% url 'buyer_rate_seller' order.0 %}">rate seller</a>
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
