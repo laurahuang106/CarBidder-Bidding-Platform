@@ -864,7 +864,7 @@ def bid(request, listing_id):
                 cursor.execute("""
                     INSERT INTO BIDDINGS (bidding_id, listing_id, user_id, bidding_amount, bidding_date, is_winner)
                     VALUES (%s, %s, %s, %s, %s, %s)
-                """, [new_bidding_id, listing_id,user_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), False])
+                """, [new_bidding_id, listing_id, user_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), False])
                 connection.commit()
 
             return redirect('product_detail', listing_id=listing_id)
@@ -1030,6 +1030,11 @@ def sell_post(request):
     if request.method == 'POST':
         # Retrieve form data
         vin = request.POST.get('vin')
+        print(f"VIN: {vin}")
+
+        # hardcoded, need change
+        vehicle_id = 666
+        vin = request.POST.get('vin')
         image_url = request.POST.get('image_url')
         vehicle_description = request.POST.get('vehicle_description')
         make = request.POST.get('make')
@@ -1047,19 +1052,17 @@ def sell_post(request):
         try:
             with connection.cursor() as cursor:
                 query = """
-                    INSERT INTO LISTED_VEHICLES (VIN, seller_id, image_url, vehicle_description, make, model, fuel_type, year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_start_date, listing_end_date)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s);
+                    INSERT INTO LISTED_VEHICLES (vehicle_id, VIN, seller_id, image_url, vehicle_description, make, model, fuel_type, year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_start_date, listing_end_date)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s);
                 """
-                cursor.execute(query, (vin, user_id, image_url, vehicle_description, make, model, fuel_type,
+                cursor.execute(query, (vehicle_id, vin, user_id, image_url, vehicle_description, make, model, fuel_type,
                                year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_end_date))
                 connection.commit()
-                # Redirect to a success page or display a success message
-
-                return HttpResponseRedirect('sell_post_success')
+                return redirect('sell_post_success')
         except Exception as e:
             print(f"An error occurred: {e}")
+            # Optionally, add feedback for the user here
 
-    # Render the sell page for GET request or in case of an error
     return render(request, 'sell_post.html', {
         'user_type': user_type,
         'user_name': user_name,
