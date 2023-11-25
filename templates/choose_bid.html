@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% extends "home.html" %} {% block body %} {% if user_name %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+        Choose Bidding
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <body>
+        <h2>Choose a Bid for Listing ID: {{ listing_id }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Bid ID</th>
+                    <th>User Name</th>
+                    <th>Bid Amount</th>
+                    <th>Bid Date</th>
+                    <th>Select Bid</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bid in bids_list %}
+                    <tr>
+                        <td>{{ bid.bidding_id }}</td> 
+                        <td>{{ bid.user_name }}</td>
+                        <td>{{ bid.bidding_amount }}</td>
+                        <td>{{ bid.bidding_date }}</td> 
+                        <td>
+                            <form method="post" action="{% url 'choose_bid' listing_id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="bidding_id" value="{{ bid.bidding_id }}"> 
+                                <button type="submit" class="btn btn-primary">Select</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>
+{% else %}
+<div class="container mt-4">
+    <p>You need to sign in to view this page.</p>
+</div>
+{% endif %} 
+{% endblock %}

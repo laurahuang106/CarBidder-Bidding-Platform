@@ -102,6 +102,7 @@
                 <th>Image</th>
                 <th>Listing Date</th>
                 <th>Status</th>
+                <th>Choose Bid</th>
             </tr>
         </thead>
         <tbody>
@@ -120,6 +121,13 @@
                 </td>
                 <td>{{ listing.6}}</td>
                 <td>{{ listing.5|yesno:"Active,Not Active" }}</td>
+                <!-- link to choose_bid -->
+                <td>
+                    <!-- Check if the listing is not active -->
+                    {% if listing.5 == False %}
+                        <a href="{% url 'choose_bid' listing_id=listing.0 %}" class="btn btn-primary">Choose Bid</a>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
