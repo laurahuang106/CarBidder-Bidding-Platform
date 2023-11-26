@@ -38,7 +38,7 @@
                         <td>
                             <form method="post" class="form-inline">
                                 {% csrf_token %}
-                                <input type="hidden" name="vehicle_id" value="{{ vehicle.1 }}">
+                                <input type="hidden" name="listing_id" value="{{ vehicle.0 }}">
                                 <select name="verification_action" class="form-select form-select-sm mr-2">
                                     <option value="" disabled selected>--select--</option>
                                     <option value="Verify">Verify</option>

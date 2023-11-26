@@ -29,9 +29,12 @@ def home(request):
 
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
+    is_seller = request.session.get('is_seller', '')
+
     context = {
         'user_type': user_type,
         'user_name': user_name,
+        'is_seller': is_seller,
     }
     return render(request, 'home.html', context)
 
@@ -123,6 +126,7 @@ def update_session(request, email):
                 request.session['num_of_buyer_rating'] = user_data[8]
                 request.session['is_allow_chat'] = user_data[9]
                 request.session['is_allow_list'] = user_data[10]
+                is_seller(request, user_data[0])
             else:
                 # Handle case where user data is not found
                 # You can redirect to an error page or set an error message
@@ -131,6 +135,20 @@ def update_session(request, email):
     except Exception as e:
         print(f"An error occurred: {e}")
         # Optionally, handle the exception (e.g., set an error message, redirect)
+
+
+def is_seller(request, user_id):
+    is_seller = False
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT COUNT(*) FROM LISTED_VEHICLES
+            WHERE seller_id = %s
+        """, [user_id])
+        count = cursor.fetchone()[0]
+        if count > 0:
+            is_seller = True
+
+    request.session['is_seller'] = is_seller
 
 
 def login(request):
@@ -186,6 +204,7 @@ def profile(request):
     num_of_buyer_rating = request.session.get('num_of_buyer_rating', '')
     is_allow_chat = request.session.get('is_allow_chat', '')
     is_allow_list = request.session.get('is_allow_list', '')
+    is_seller = request.session.get('is_seller', '')
 
     # Fetch the listings vehicles from the database
     listings = []
@@ -239,6 +258,7 @@ def profile(request):
         'is_allow_list': is_allow_list,
         'listings': listings,
         'biddings': biddings,
+        'is_seller': is_seller,
         'current_page': 'profile',
     }
 
@@ -339,7 +359,7 @@ def verify_vehicles(request):
 
     # Check if the request is a POST to update verification status
     if request.method == 'POST':
-        vehicle_id = request.POST.get('vehicle_id')
+        listing_id = request.POST.get('listing_id')
         verification_action = request.POST.get('verification_action')
 
         new_status = None
@@ -351,8 +371,8 @@ def verify_vehicles(request):
 
         # Update the database
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE LISTED_VEHICLES SET is_verified = %s WHERE vehicle_id = %s", [
-                           new_status, vehicle_id])
+            cursor.execute("UPDATE LISTED_VEHICLES SET is_verified = %s WHERE listing_id = %s", [
+                           new_status, listing_id])
 
         # Redirect to the same page to prevent form resubmission on page refresh
         return redirect('verify_vehicles')
@@ -420,6 +440,7 @@ def orders(request):
     user_id = request.session.get('user_id', '')
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
+    is_seller = request.session.get('is_seller', '')
 
     # Fetch orders from the database
     orders = []
@@ -442,6 +463,7 @@ def orders(request):
     context = {'orders': orders,
                'user_type': user_type,
                'user_name': user_name,
+               'is_seller': is_seller,
                'current_page': 'orders',
                }
     return render(request, 'orders.html', context)
@@ -560,6 +582,7 @@ def other_user_profile(request, other_user_id):
 
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
+    is_seller = request.session.get('is_seller', '')
 
     try:
         with connection.cursor() as cursor:
@@ -601,6 +624,7 @@ def other_user_profile(request, other_user_id):
         'listed_vehicles': listed_vehicles,
         'user_type': user_type,
         'user_name': user_name,
+        'is_seller': is_seller,
     }
     return render(request, 'other_user_profile.html', context)
 
@@ -733,16 +757,19 @@ def search_car(request):
 
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
+    is_seller = request.session.get('is_seller', '')
 
     return render(request, 'search_car.html', {
         'user_name': user_name,
         'user_type': user_type,
+        'is_seller': is_seller,
         'vehicles': vehicles,
         'makes': makes,
         'years': years,
         'mileages': mileages,
         'prices': prices,
         'error_message': error_message,
+        'current_page': 'search_car',
     })
 
 
@@ -785,26 +812,26 @@ def product_detail(request, listing_id):
     # Map the result to a dictionary for easy access in the template
     product_dict = {
         'listing_id': result[0],
-        'VIN': result[2],
-        'image_url': result[4],
-        'vehicle_description': result[5],
-        'make': result[6],
-        'model': result[7],
-        'fuel_type': result[8],
-        'year_of_production': result[9],
-        'mileage': result[10],
-        'price': result[11],
-        'exterior_color': result[12],
-        'interior_color': result[13],
-        'state': result[14],
-        'zip_code': result[15],
-        'seller_name': result[22],
-        'seller_rating': result[25],
+        'VIN': result[1],
+        'image_url': result[3],
+        'vehicle_description': result[4],
+        'make': result[5],
+        'model': result[6],
+        'fuel_type': result[7],
+        'year_of_production': result[8],
+        'mileage': result[9],
+        'price': result[10],
+        'exterior_color': result[11],
+        'interior_color': result[12],
+        'state': result[13],
+        'zip_code': result[14],
+        'seller_name': result[21],
+        'seller_rating': result[24],
         'current_bid': current_bid[0] if current_bid else None,
     }
 
     # return render(request, 'product_detail.html', {'product': product_dict})
-    if request.method == 'POST':
+    if request.method == 'POST' and 'bid_amount' in request.POST:
         bid_amount = request.POST.get('bid_amount')
         # Assuming user authentication
         user_id = request.user.id
@@ -823,15 +850,61 @@ def product_detail(request, listing_id):
             # Redirect to the same page to display the success message
             return redirect('bid_success', listing_id=listing_id, user_id=request.user.id)
 
+    user_id = request.session.get('user_id', '')
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
+    is_seller = request.session.get('is_seller', '')
+
+    # Add new chat
+    seller_id = result[19]
+    current_user_id = request.session.get('user_id', '')
+    print(result)
+    if add_new_chat(request, listing_id, user_id, seller_id):
+        return redirect('product_detail', listing_id=listing_id)
+
+    # Get chat history
+    chat_history = get_chat_history(listing_id, current_user_id, seller_id)
 
     # For GET requests or if the bid placement is not successful, render the page with product details
     return render(request, 'product_detail.html', {
         'product': product_dict,
         'user_name': user_name,
         'user_type': user_type,
+        'user_id': user_id,
+        'chat_history': chat_history,
+        'is_seller': is_seller
     })
+
+
+def get_chat_history(listing_id, buyer_id, seller_id):
+    chat_messages = []
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT * FROM CHATS
+            WHERE listing_id = %s 
+            AND ((sender_id = %s AND receiver_id = %s) 
+            OR (sender_id = %s AND receiver_id = %s))
+            ORDER BY date ASC
+        """, [listing_id, buyer_id, seller_id, seller_id, buyer_id])
+        chat_messages = cursor.fetchall()
+    return chat_messages
+
+
+def add_new_chat(request, listing_id, buyer_id, seller_id):
+    new_message_added = False
+    if request.method == 'POST' and 'new_message' in request.POST:
+        sender_id = buyer_id
+        receiver_id = seller_id
+        new_message = request.POST.get('new_message')
+        if new_message:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO CHATS (sender_id, receiver_id, message, date, listing_id)
+                    VALUES ( %s, %s, %s, NOW(), %s)
+                """, [sender_id, receiver_id, new_message, listing_id])
+            new_message_added = True
+
+        return new_message_added
 
 
 def bid(request, listing_id):
@@ -864,7 +937,7 @@ def bid(request, listing_id):
                 cursor.execute("""
                     INSERT INTO BIDDINGS (bidding_id, listing_id, user_id, bidding_amount, bidding_date, is_winner)
                     VALUES (%s, %s, %s, %s, %s, %s)
-                """, [new_bidding_id, listing_id,user_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), False])
+                """, [new_bidding_id, listing_id, user_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), False])
                 connection.commit()
 
             return redirect('product_detail', listing_id=listing_id)
@@ -896,12 +969,15 @@ def bid(request, listing_id):
 
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
+    is_seller = request.session.get('is_seller', '')
 
     return render(request, 'bid.html', {
         'product': product_dict,
         'listing_id': listing_id,
         'user_name': user_name,
         'user_type': user_type,
+        'is_seller': is_seller,
+        'current_page': 'product_detail',
     })
 
 
@@ -911,11 +987,13 @@ def chatbot(request):
 
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
+    is_seller = request.session.get('is_seller', '')
 
     return render(request, 'chatbot.html', {
-
         'user_name': user_name,
         'user_type': user_type,
+        'is_seller': is_seller,
+        'current_page': 'chatbot',
     })
 
 
@@ -962,6 +1040,7 @@ def chat(request):
 def buyer_rate_seller(request, order_id):
     user_id = request.session.get('user_id', None)
     user_name = request.session.get('user_name', '')
+    is_seller = request.session.get('is_seller', '')
 
     # Initialize existing_rating to None
     existing_rating = None
@@ -1013,6 +1092,7 @@ def buyer_rate_seller(request, order_id):
     return render(request, 'buyer_rate_seller.html', {
         'user_name': user_name,
         'order_id': order_id,
+        'is_seller': is_seller,
         'existing_rating': existing_rating[0] if existing_rating else None
     })
 
@@ -1026,9 +1106,9 @@ def sell_post(request):
     user_id = request.session.get('user_id', '')
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
+    is_seller = request.session.get('is_seller', '')
 
     if request.method == 'POST':
-        # Retrieve form data
         vin = request.POST.get('vin')
         image_url = request.POST.get('image_url')
         vehicle_description = request.POST.get('vehicle_description')
@@ -1053,17 +1133,17 @@ def sell_post(request):
                 cursor.execute(query, (vin, user_id, image_url, vehicle_description, make, model, fuel_type,
                                year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_end_date))
                 connection.commit()
-                # Redirect to a success page or display a success message
-
-                return HttpResponseRedirect('sell_post_success')
+                return redirect('sell_post_success')
         except Exception as e:
             print(f"An error occurred: {e}")
+            # Optionally, add feedback for the user here
 
-    # Render the sell page for GET request or in case of an error
     return render(request, 'sell_post.html', {
         'user_type': user_type,
         'user_name': user_name,
-        'user_id': user_id
+        'user_id': user_id,
+        'is_seller': is_seller,
+        'current_page': 'sell_post',
     })
 
 
@@ -1076,11 +1156,73 @@ def sell_post_success(request):
     user_id = request.session.get('user_id', '')
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
+    is_seller = request.session.get('is_seller', '')
 
     return render(request, 'sell_post_success.html', {
         'user_type': user_type,
         'user_name': user_name,
-        'user_id': user_id
+        'user_id': user_id,
+        'is_seller': is_seller,
+        'current_page': 'sell_post_success',
+    })
+
+# Chat with buyer view function
+
+
+def chat_with_buyer(request):
+    current_user_id = request.session.get(
+        'user_id', '')
+    chats = []
+    chat_history = []
+    selected_listing_id = None
+    selected_buyer_name = None
+    selected_buyer_id = None
+
+    # Handling message submission
+    if request.method == 'POST' and 'new_message' in request.POST:
+        selected_listing_id = request.POST.get('selected_listing_id')
+        selected_buyer_name = request.POST.get('selected_buyer_name')
+        selected_buyer_id = request.POST.get('selected_buyer_id')
+        if add_new_chat(request, selected_listing_id, current_user_id, selected_buyer_id):
+            chat_history = get_chat_history(selected_listing_id, current_user_id, selected_buyer_id)
+
+    # Handling chat selection
+    elif request.method == 'POST' and 'selected_listing_id' in request.POST:
+        selected_listing_id = request.POST.get('selected_listing_id')
+        selected_buyer_name = request.POST.get('selected_buyer_name')
+        selected_buyer_id = request.POST.get('selected_buyer_id')
+        chat_history = get_chat_history(selected_listing_id, current_user_id, selected_buyer_id)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT c.chat_id, c.message, c.date, c.listing_id, u.user_name, u.user_id
+            FROM CHATS c
+            JOIN USERS u ON c.sender_id = u.user_id
+            WHERE c.receiver_id = %s AND c.listing_id in (
+                SELECT listing_id
+                FROM LISTED_VEHICLES
+                WHERE seller_id = %s
+            )
+            ORDER BY c.date ASC
+        """, [current_user_id, current_user_id])
+        chats = cursor.fetchall()
+
+    user_id = request.session.get('user_id', '')
+    user_type = request.session.get('user_type', '')
+    user_name = request.session.get('user_name', '')
+    is_seller = request.session.get('is_seller', '')
+
+    return render(request, 'chat_with_buyer.html', {
+        'user_type': user_type,
+        'user_name': user_name,
+        'user_id': user_id,
+        'is_seller': is_seller,
+        'chats': chats,
+        'selected_listing_id': selected_listing_id,
+        'selected_buyer_name': selected_buyer_name,
+        'selected_buyer_id': selected_buyer_id,
+        'chat_history': chat_history,
+        'current_page': 'chat_with_buyer',
     })
 
 

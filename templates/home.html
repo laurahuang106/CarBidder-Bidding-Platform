@@ -39,7 +39,7 @@
                 User type is <strong>{{ user_type }}</strong>.
                 {% if user_type == 'NORMAL_USER' %}
                     <!-- Toggle Button for Comment Box -->
-                    <i onclick="toggleCommentBox()" class="fas fa-pencil-alt" style="cursor: pointer; color: #007bff; margin-left: 10px; vertical-align: middle;"></i>
+                    <i onclick="toggleCommentBox()" class="fas fa-pencil-alt" style="cursor: pointer; color: #007bff; margin-left: 10px; vertical-align: middle;">leave your comments</i>
 
                     <div id="message-container">
                         {% if messages %}
@@ -94,15 +94,17 @@
 
         <!-- Navigation Bar -->
         <ul class="nav nav-pills nav-fill">
-
-           <li class="nav-item">
-               <a class="nav-link" href="{% url 'search_car' %}">Search</a>
-           </li>
-           <li class="nav-item">
-            <a class="nav-link" href="{% url 'chatbot' %}">Chatbot</a>
-            </li>
             {% if user_name %}
              </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_page == 'search_car' or current_page == 'product_detail' %}active{% endif %}" href="{% url 'search_car' %}">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_page == 'sell_post' or current_page == 'sell_post_success' %}active{% endif %}" href="{% url 'sell_post' %}">Sell</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if current_page == 'chatbot' %}active{% endif %}" href="{% url 'chatbot' %}">Chatbot</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {% if current_page == 'profile' %}active{% endif %}" href="{% url 'profile' %}">Profile</a>
                 </li>
@@ -128,6 +130,13 @@
                     <li class="nav-item">
                         <a class="nav-link {% if current_page == 'orders' %}active{% endif %}" href="{% url 'orders' %}">Orders</a>
                     </li>
+
+                    {% if is_seller == True %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if current_page == 'chat_with_buyer' %}active{% endif %}" href="{% url 'chat_with_buyer' %}">Chat With Buyer</a>
+                        </li>
+                    {% endif %}
+
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
