@@ -136,4 +136,15 @@
             background-color: #0056b3;
         }
     </style>
+
+    <script>
+        // Function to scroll to the bottom of the chat history
+        function scrollToBottom() {
+            var chatHistory = document.querySelector('.chat-history');
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // Run the function when the window loads
+        window.onload = scrollToBottom;
+    </script>
 {% endblock %}
