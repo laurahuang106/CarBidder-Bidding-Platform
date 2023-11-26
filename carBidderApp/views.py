@@ -854,7 +854,7 @@ def product_detail(request, listing_id):
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
     is_seller = request.session.get('is_seller', '')
-    is_allowed_chat = request.session.get('is_allowed_chat', '')
+    is_allowed_chat = get_is_allowed_chat(user_id)
 
     # Add new chat
     seller_id = result[19]
@@ -877,6 +877,18 @@ def product_detail(request, listing_id):
         'is_allowed_chat': is_allowed_chat,
     })
 
+def get_is_allowed_chat(user_id):
+    with connection.cursor() as cursor:
+        query = "SELECT is_allowed_chat FROM USERS WHERE user_id = %s"
+        cursor.execute(query, [user_id])
+        
+        row = cursor.fetchone()
+        
+        if row is not None:
+            # row[0] will be the is_allowed_chat value
+            return row[0]
+        else:
+            return None  # or handle as appropriate
 
 def get_chat_history(listing_id, buyer_id, seller_id):
     chat_messages = []
