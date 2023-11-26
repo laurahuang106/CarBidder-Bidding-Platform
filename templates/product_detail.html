@@ -92,6 +92,7 @@
           </div>
 
           <!-- Chat with buyer -->
+          {% if is_allowed_chat and user_type == "NORMAL_USER" %}
           <div
             class="chat-box-container"
             id="chatBox"
@@ -164,6 +165,7 @@
               </form>
             </div>
           </div>
+          {% endif %}
         </div>
 
         <!-- JavaScript for Bid Validation -->

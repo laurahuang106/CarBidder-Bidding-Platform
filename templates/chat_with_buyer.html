@@ -1,5 +1,6 @@
 {% extends "home.html" %}
 {% block body %}
+    {% if is_allowed_chat %}
     <h1>Chat with Buyers</h1>
     <div style="overflow-x:auto;">
         <table style="width:100%; border-collapse: collapse;">
@@ -147,4 +148,7 @@
         // Run the function when the window loads
         window.onload = scrollToBottom;
     </script>
+    {% else %}
+    <h1>Not Allowed to Chat</h1>
+    {% endif %}
 {% endblock %}

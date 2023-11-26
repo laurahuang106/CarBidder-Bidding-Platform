@@ -6,7 +6,7 @@
                 <thead>
                     <tr>
                         <th>Listing ID</th>
-                        <th>Vehicle ID</th>
+                        <th>VIN</th>
                         <th>Make</th>
                         <th>Model</th>
                         <th>Year</th>
@@ -20,16 +20,16 @@
                     {% for vehicle in vehicles %}
                     <tr>
                         <td>{{ vehicle.0 }}</td>
-                        <td>{{ vehicle.1 }}</td>
+                        <td><a href="/product/{{ vehicle.0 }}/">{{ vehicle.1 }}</a></td>
+                        <td>{{ vehicle.5 }}</td>
                         <td>{{ vehicle.6 }}</td>
-                        <td>{{ vehicle.7 }}</td>
+                        <td>{{ vehicle.8 }}</td>
                         <td>{{ vehicle.9 }}</td>
                         <td>{{ vehicle.10 }}</td>
-                        <td>{{ vehicle.11 }}</td>
                         <td>
-                            {% if vehicle.16 == True %} 
+                            {% if vehicle.15 == True %} 
                                 <span style="color: green; font-weight: bold;">&#10003;</span>
-                            {% elif vehicle.16 == False %} 
+                            {% elif vehicle.15 == False %} 
                                 <span style="color: red; font-weight: bold;">&#10007;</span>
                             {% else %} 
                                 Pending
