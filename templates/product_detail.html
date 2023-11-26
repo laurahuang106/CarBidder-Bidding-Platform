@@ -92,7 +92,7 @@
           </div>
 
           <!-- Chat with buyer -->
-          {% if is_allowed_chat %}
+          {% if is_allowed_chat and user_type == "NORMAL_USER" %}
           <div
             class="chat-box-container"
             id="chatBox"
