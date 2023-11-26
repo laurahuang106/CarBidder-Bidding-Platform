@@ -108,7 +108,7 @@
         <tbody>
             {% for listing in listings %}
             <tr>
-                <td>{{ listing.0 }}</td>
+                <td><a href="{% url 'product_detail' listing_id=listing.0 %}">{{ listing.0 }}</a></td>
                 <td>{{ listing.1 }}</td>
                 <td>{{ listing.2 }}</td>
                 <td>{{ listing.3 }}</td>
@@ -160,7 +160,7 @@
             {% for bid in biddings %}
             <tr>
                 <td>{{ bid.0 }}</td>
-                <td>{{ bid.1 }}</td>
+                <td><a href="{% url 'product_detail' listing_id=bid.1 %}">{{ bid.1 }}</a></td>
                 <td>{{ bid.2 }}</td>
                 <td>{{ bid.3 }}</td>
                 <td>{{ bid.4 }}</td>
