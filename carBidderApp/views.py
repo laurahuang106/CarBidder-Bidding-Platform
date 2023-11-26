@@ -854,6 +854,7 @@ def product_detail(request, listing_id):
     user_name = request.session.get('user_name', '')
     user_type = request.session.get('user_type', '')
     is_seller = request.session.get('is_seller', '')
+    is_allowed_chat = request.session.get('is_allowed_chat', '')
 
     # Add new chat
     seller_id = result[19]
@@ -872,7 +873,8 @@ def product_detail(request, listing_id):
         'user_type': user_type,
         'user_id': user_id,
         'chat_history': chat_history,
-        'is_seller': is_seller
+        'is_seller': is_seller,
+        'is_allowed_chat': is_allowed_chat,
     })
 
 
@@ -1195,16 +1197,35 @@ def chat_with_buyer(request):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT c.chat_id, c.message, c.date, c.listing_id, u.user_name, u.user_id
-            FROM CHATS c
-            JOIN USERS u ON c.sender_id = u.user_id
-            WHERE c.receiver_id = %s AND c.listing_id in (
-                SELECT listing_id
-                FROM LISTED_VEHICLES
-                WHERE seller_id = %s
-            )
-            ORDER BY c.date ASC
-        """, [current_user_id, current_user_id])
+            SELECT 
+                c.chat_id, 
+                c.message, 
+                c.date, 
+                c.listing_id, 
+                u.user_name, 
+                u.user_id
+            FROM 
+                CHATS c
+            JOIN 
+                USERS u ON c.sender_id = u.user_id
+            JOIN 
+                (SELECT 
+                    MAX(date) as latest_date, 
+                    listing_id,
+                    sender_id
+                FROM 
+                    CHATS
+                WHERE 
+                    receiver_id = %s
+                GROUP BY 
+                    listing_id, sender_id) AS latest_messages ON c.date = latest_messages.latest_date AND c.listing_id = latest_messages.listing_id AND c.sender_id = latest_messages.sender_id
+            WHERE 
+                c.receiver_id = %s AND 
+                c.listing_id IN 
+                    (SELECT listing_id FROM LISTED_VEHICLES WHERE seller_id = %s)
+            ORDER BY 
+                c.listing_id, c.sender_id, c.date DESC;
+        """, [current_user_id, current_user_id, current_user_id])
         chats = cursor.fetchall()
 
     user_id = request.session.get('user_id', '')
