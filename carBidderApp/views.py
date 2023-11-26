@@ -977,10 +977,10 @@ def bid(request, listing_id):
     product_dict = {
         'user_name': user_name,
         'user_type': user_type,
-        'image_url': result[4],
-        'make': result[6],
-        'model': result[7],
-        'price': result[11],
+        'image_url': result[3],
+        'make': result[5],
+        'model': result[6],
+        'price': result[10],
     }
 
     user_name = request.session.get('user_name', '')
