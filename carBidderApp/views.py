@@ -1226,43 +1226,6 @@ def chat_with_buyer(request):
     })
 
 
-
-# seller choose the buyers' bid
-# def choose_bid(request,listing_id):
-#     user_email = request.session.get('email', '')
-#     if user_email:
-#         update_session(request, user_email)
-
-#     user_id = request.session.get('user_id', '')
-#     user_type = request.session.get('user_type', '')
-#     user_name = request.session.get('user_name', '')
-
-
-#     chooses =[]
-#     if listing_id:
-#         try:
-#             with connection.cursor() as cursor:
-#                 query = """
-#                     SELECT b.*, u.user_name
-#                     FROM BIDDINGS b
-#                     JOIN USERS u ON b.user_id = u.user_id
-#                     WHERE b.listing_id = %s   
-#                 """
-#                 cursor.execute(query, [listing_id])
-#                 chooses = cursor.fetchall()
-#         except Exception as e:
-#             print(f"An error occurred: {e}")
-# # Creating the context dictionary
-
-#     context = {
-#         "data":chooses,
-
-#         'user_type': user_type,
-#         'user_name': user_name,
-#         'user_id': user_id
-#     }
-#     return render(request,'choose_bid.html', context)
-
 def choose_bid(request, listing_id):   
     user_email = request.session.get('email', '')
     if user_email:
@@ -1286,10 +1249,23 @@ def choose_bid(request, listing_id):
     if not winner_exists:
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT b.*, u.*
-                FROM BIDDINGS b
-                JOIN USERS u ON b.user_id = u.user_id
-                WHERE b.listing_id = %s
+                SELECT 
+                    b.bidding_id,
+                    b.user_id,
+                    b.bidding_amount,
+                    b.bidding_date,
+                    u.user_name,
+                    u.balance,
+                    (u.balance - b.bidding_amount >= 0) AS enough_money_to_pay
+                FROM 
+                    BIDDINGS b
+                JOIN 
+                    USERS u ON b.user_id = u.user_id
+                WHERE 
+                    b.listing_id = %s
+                ORDER BY 
+                    b.bidding_amount DESC
+
             """, [listing_id])
 
             bids = cursor.fetchall()
@@ -1298,14 +1274,16 @@ def choose_bid(request, listing_id):
 # Check if the results are not empty
    
         if bids:
-                for bid in bids:
-                    bids_list.append({
-                        'bidding_id': bid[0],
-                        'user_id': bid[2],
-                        'user_name': bid[7],  # Assuming the user_name is the 8th column in the SELECT result
-                        'bidding_amount': bid[3],
-                        'bidding_date': bid[4].strftime("%Y-%m-%d %H:%M:%S"),  # Formatting datetime to string
-                    })
+            for bid in bids:
+                bids_list.append({
+                    'bidding_id': bid[0],     
+                    'bidding_amount': bid[2],  
+                    'bidding_date': bid[3].strftime("%Y-%m-%d %H:%M:%S"), 
+                    'user_name': bid[4],   
+                    'balance': bid[5],    
+                    'enough_money_to_pay': bid[6]  
+                })
+
         
     # if not bid_details:
     #     # If there is no bid with the given bidding_id

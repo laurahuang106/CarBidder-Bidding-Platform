@@ -69,7 +69,8 @@
                                         <form method="post" action="{% url 'choose_bid' listing_id %}">
                                             {% csrf_token %}
                                             <input type="hidden" name="bidding_id" value="{{ bid.bidding_id }}"> 
-                                            <button type="submit" class="btn btn-primary">Select</button>
+                                            <button type="submit" class="btn btn-primary" {% if not bid.enough_money_to_pay %}disabled{% endif %}>Select</button>
+                        </form>
                                         </form>
                                     </td>
                                 </tr>

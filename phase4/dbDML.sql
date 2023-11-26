@@ -40,6 +40,7 @@ INSERT INTO LISTED_VEHICLES (listing_id, VIN, seller_id, image_url, vehicle_desc
 (19, 'VIN0000000000019', 9, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOAOpCjhzwv1KGzFv3kqzDP-YnNMeyxRkPDA&usqp=CAU', 'Compact', 'Chevrolet', 'Spark', 'Gas', 2022, 2000, 14000, 'Green', 'Gray', 'WA', '98001', TRUE, '2023-11-15 10:00:00', '2023-12-31 10:00:00', TRUE),
 (20, 'VIN0000000000020', 2, 'https://res2.grays.com/handlers/imagehandler.ashx?t=sh&id=34701951&s=d&index=0&ts=637848517050000000', 'Sport Edition', 'Audi', 'A3', 'Gas', 2019, 8500, 27000, 'Gray', 'Black', 'IL', '60001', TRUE, '2023-11-21 10:00:00', '2023-12-15 10:00:00', TRUE),
 (21, 'VIN0000000000021', 3, 'https://cdn.jdpower.com/jdpa_2022%20volkswagen%20golf%20r%20blue%20front%20quarter%20view%201.jpg', 'New Model', 'Volkswagen', 'Golf', 'Gas', 2022, 1000, 23000, 'Blue', 'Beige', 'NC', '28001', TRUE, '2023-11-22 09:00:00', '2023-12-18 09:00:00', TRUE),
+(1000, 'VIN000000000001000', 2, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOAOpCjhzwv1KGzFv3kqzDP-YnNMeyxRkPDA&usqp=CAU', 'Good Condition', 'Nissan', 'Altima', 'Gas', 2023, 100, 50000.00, 'Black', 'Black', 'CA', '90001', TRUE, '2023-11-01', '2023-11-24', TRUE);
 
 
 
@@ -58,7 +59,9 @@ INSERT INTO BIDDINGS (bidding_id, listing_id, user_id, bidding_amount, bidding_d
 (11, 6, 9, 28500.00, '2023-01-15 14:00:00', NULL),
 (12, 10, 3, 19300.00, '2023-02-06 18:00:00', NULL),
 (13, 111, 3, 25000.00, '2023-11-22 18:00:00', NULL);
-
+(1001, 1000, 3, 55000.00, '2023-11-10 10:00:00', NULL),
+(1002, 1000, 5, 19500.00, '2023-11-11 10:00:00', NULL),
+(1003, 1000, 6, 21000.00, '2023-11-12 10:00:00', NULL);
 
 -- RATINGS Table
 INSERT INTO RATINGS (listing_id, seller_id, winner_id, seller_rate_from_winner, winner_rate_from_seller, rate) VALUES
