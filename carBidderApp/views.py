@@ -856,8 +856,9 @@ def product_detail(request, listing_id):
     is_seller = request.session.get('is_seller', '')
 
     # Add new chat
-    seller_id = result[20]
+    seller_id = result[19]
     current_user_id = request.session.get('user_id', '')
+    print(result)
     if add_new_chat(request, listing_id, user_id, seller_id):
         return redirect('product_detail', listing_id=listing_id)
 
@@ -1190,8 +1191,7 @@ def chat_with_buyer(request):
         selected_listing_id = request.POST.get('selected_listing_id')
         selected_buyer_name = request.POST.get('selected_buyer_name')
         selected_buyer_id = request.POST.get('selected_buyer_id')
-        chat_history = get_chat_history(
-            selected_listing_id, current_user_id, selected_buyer_id)
+        chat_history = get_chat_history(selected_listing_id, current_user_id, selected_buyer_id)
 
     with connection.cursor() as cursor:
         cursor.execute("""
