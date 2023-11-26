@@ -136,6 +136,7 @@ def update_session(request, email):
         print(f"An error occurred: {e}")
         # Optionally, handle the exception (e.g., set an error message, redirect)
 
+
 def is_seller(request, user_id):
     is_seller = False
     with connection.cursor() as cursor:
@@ -146,7 +147,7 @@ def is_seller(request, user_id):
         count = cursor.fetchone()[0]
         if count > 0:
             is_seller = True
-    
+
     request.session['is_seller'] = is_seller
 
 
@@ -811,21 +812,21 @@ def product_detail(request, listing_id):
     # Map the result to a dictionary for easy access in the template
     product_dict = {
         'listing_id': result[0],
-        'VIN': result[2],
-        'image_url': result[4],
-        'vehicle_description': result[5],
-        'make': result[6],
-        'model': result[7],
-        'fuel_type': result[8],
-        'year_of_production': result[9],
-        'mileage': result[10],
-        'price': result[11],
-        'exterior_color': result[12],
-        'interior_color': result[13],
-        'state': result[14],
-        'zip_code': result[15],
-        'seller_name': result[22],
-        'seller_rating': result[25],
+        'VIN': result[1],
+        'image_url': result[3],
+        'vehicle_description': result[4],
+        'make': result[5],
+        'model': result[6],
+        'fuel_type': result[7],
+        'year_of_production': result[8],
+        'mileage': result[9],
+        'price': result[10],
+        'exterior_color': result[11],
+        'interior_color': result[12],
+        'state': result[13],
+        'zip_code': result[14],
+        'seller_name': result[21],
+        'seller_rating': result[24],
         'current_bid': current_bid[0] if current_bid else None,
     }
 
@@ -1107,12 +1108,6 @@ def sell_post(request):
     is_seller = request.session.get('is_seller', '')
 
     if request.method == 'POST':
-        # Retrieve form data
-        vin = request.POST.get('vin')
-        print(f"VIN: {vin}")
-
-        # hardcoded, need change
-        vehicle_id = 666
         vin = request.POST.get('vin')
         image_url = request.POST.get('image_url')
         vehicle_description = request.POST.get('vehicle_description')
@@ -1131,10 +1126,10 @@ def sell_post(request):
         try:
             with connection.cursor() as cursor:
                 query = """
-                    INSERT INTO LISTED_VEHICLES (vehicle_id, VIN, seller_id, image_url, vehicle_description, make, model, fuel_type, year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_start_date, listing_end_date)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s);
+                    INSERT INTO LISTED_VEHICLES (VIN, seller_id, image_url, vehicle_description, make, model, fuel_type, year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_start_date, listing_end_date)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s);
                 """
-                cursor.execute(query, (vehicle_id, vin, user_id, image_url, vehicle_description, make, model, fuel_type,
+                cursor.execute(query, (vin, user_id, image_url, vehicle_description, make, model, fuel_type,
                                year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_end_date))
                 connection.commit()
                 return redirect('sell_post_success')
@@ -1171,8 +1166,11 @@ def sell_post_success(request):
     })
 
 # Chat with buyer view function
+
+
 def chat_with_buyer(request):
-    current_user_id = request.session.get('user_id', '')
+    current_user_id = request.session.get(
+        'user_id', '')
     chats = []
     chat_history = []
     selected_listing_id = None
@@ -1192,8 +1190,9 @@ def chat_with_buyer(request):
         selected_listing_id = request.POST.get('selected_listing_id')
         selected_buyer_name = request.POST.get('selected_buyer_name')
         selected_buyer_id = request.POST.get('selected_buyer_id')
-        chat_history = get_chat_history(selected_listing_id, current_user_id, selected_buyer_id)
-    
+        chat_history = get_chat_history(
+            selected_listing_id, current_user_id, selected_buyer_id)
+
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT c.chat_id, c.message, c.date, c.listing_id, u.user_name, u.user_id
