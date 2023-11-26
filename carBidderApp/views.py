@@ -136,6 +136,7 @@ def update_session(request, email):
         print(f"An error occurred: {e}")
         # Optionally, handle the exception (e.g., set an error message, redirect)
 
+
 def is_seller(request, user_id):
     is_seller = False
     with connection.cursor() as cursor:
@@ -146,7 +147,7 @@ def is_seller(request, user_id):
         count = cursor.fetchone()[0]
         if count > 0:
             is_seller = True
-    
+
     request.session['is_seller'] = is_seller
 
 
@@ -1109,12 +1110,6 @@ def sell_post(request):
     is_seller = request.session.get('is_seller', '')
 
     if request.method == 'POST':
-        # Retrieve form data
-        vin = request.POST.get('vin')
-        print(f"VIN: {vin}")
-
-        # hardcoded, need change
-        vehicle_id = 666
         vin = request.POST.get('vin')
         image_url = request.POST.get('image_url')
         vehicle_description = request.POST.get('vehicle_description')
@@ -1133,10 +1128,10 @@ def sell_post(request):
         try:
             with connection.cursor() as cursor:
                 query = """
-                    INSERT INTO LISTED_VEHICLES (vehicle_id, VIN, seller_id, image_url, vehicle_description, make, model, fuel_type, year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_start_date, listing_end_date)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s);
+                    INSERT INTO LISTED_VEHICLES (VIN, seller_id, image_url, vehicle_description, make, model, fuel_type, year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_start_date, listing_end_date)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s);
                 """
-                cursor.execute(query, (vehicle_id, vin, user_id, image_url, vehicle_description, make, model, fuel_type,
+                cursor.execute(query, (vin, user_id, image_url, vehicle_description, make, model, fuel_type,
                                year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_end_date))
                 connection.commit()
                 return redirect('sell_post_success')
@@ -1173,27 +1168,31 @@ def sell_post_success(request):
     })
 
 # Chat with buyer view function
+
+
 def chat_with_buyer(request):
-    current_user_id = request.session.get('user_id', '')  # Get current logged-in user's ID
+    current_user_id = request.session.get(
+        'user_id', '')  # Get current logged-in user's ID
     chats = []
     chat_history = []
     selected_listing_id = None
     selected_buyer_name = None
     selected_buyer_id = None
-    
+
     if request.method == 'POST' and 'new_message' in request.POST:
         selected_listing_id = request.POST.get('selected_listing_id')
         selected_buyer_name = request.POST.get('selected_buyer_name')
         selected_buyer_id = request.POST.get('selected_buyer_id')
         if add_new_chat(request, selected_listing_id, current_user_id, selected_buyer_id):
             return redirect('chat_with_buyer')
-    
+
     if request.method == 'POST' and 'selected_listing_id' in request.POST:
         selected_listing_id = request.POST.get('selected_listing_id')
         selected_buyer_name = request.POST.get('selected_buyer_name')
         selected_buyer_id = request.POST.get('selected_buyer_id')
-        chat_history = get_chat_history(selected_listing_id, current_user_id, selected_buyer_id)
-    
+        chat_history = get_chat_history(
+            selected_listing_id, current_user_id, selected_buyer_id)
+
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT c.chat_id, c.message, c.date, c.listing_id, u.user_name, u.user_id

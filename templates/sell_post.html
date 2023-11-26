@@ -4,26 +4,33 @@
     <h2>Vehicle Listing Form</h2>
     <form action="{% url 'sell_post' %}" method="post">
       {% csrf_token %}
-      <div class="form-group">
-        <label for="vin">VIN</label>
-        <input
-          type="text"
-          class="form-control"
-          id="vin"
-          name="vin"
-          maxlength="17"
-          required
-        />
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="vin">VIN</label>
+            <input
+              type="text"
+              class="form-control"
+              id="vin"
+              name="vin"
+              maxlength="17"
+              required
+            />
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="image_url">Image URL</label>
+            <input
+              type="text"
+              class="form-control"
+              id="image_url"
+              name="image_url"
+            />
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="image_url">Image URL</label>
-        <input
-          type="text"
-          class="form-control"
-          id="image_url"
-          name="image_url"
-        />
-      </div>
+
       <div class="form-group">
         <label for="vehicle_description">Vehicle Description</label>
         <textarea
@@ -33,90 +40,131 @@
           maxlength="255"
         ></textarea>
       </div>
-      <div class="form-group">
-        <label for="make">Make</label>
-        <input
-          type="text"
-          class="form-control"
-          id="make"
-          name="make"
-          required
-        />
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="make">Make</label>
+            <input
+              type="text"
+              class="form-control"
+              id="make"
+              name="make"
+              required
+            />
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="model">Model</label>
+            <input
+              type="text"
+              class="form-control"
+              id="model"
+              name="model"
+              required
+            />
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="model">Model</label>
-        <input
-          type="text"
-          class="form-control"
-          id="model"
-          name="model"
-          required
-        />
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="year_of_production">Year of Production</label>
+            <input
+              type="number"
+              class="form-control"
+              id="year_of_production"
+              name="year_of_production"
+            />
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="fuel_type">Fuel Type</label>
+            <input
+              type="text"
+              class="form-control"
+              id="fuel_type"
+              name="fuel_type"
+            />
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="fuel_type">Fuel Type</label>
-        <input
-          type="text"
-          class="form-control"
-          id="fuel_type"
-          name="fuel_type"
-        />
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="mileage">Mileage</label>
+            <input
+              type="number"
+              class="form-control"
+              id="mileage"
+              name="mileage"
+            />
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="price">Price</label>
+            <input type="number" class="form-control" id="price" name="price" />
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="year_of_production">Year of Production</label>
-        <input
-          type="number"
-          class="form-control"
-          id="year_of_production"
-          name="year_of_production"
-        />
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="exterior_color">Exterior Color</label>
+            <input
+              type="text"
+              class="form-control"
+              id="exterior_color"
+              name="exterior_color"
+            />
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="interior_color">Interior Color</label>
+            <input
+              type="text"
+              class="form-control"
+              id="interior_color"
+              name="interior_color"
+            />
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="mileage">Mileage</label>
-        <input type="number" class="form-control" id="mileage" name="mileage" />
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="state">State</label>
+            <input
+              type="text"
+              class="form-control"
+              id="state"
+              name="state"
+              maxlength="2"
+            />
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="zip_code">Zip Code</label>
+            <input
+              type="text"
+              class="form-control"
+              id="zip_code"
+              name="zip_code"
+              maxlength="10"
+            />
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="price">Price</label>
-        <input type="number" class="form-control" id="price" name="price" />
-      </div>
-      <div class="form-group">
-        <label for="exterior_color">Exterior Color</label>
-        <input
-          type="text"
-          class="form-control"
-          id="exterior_color"
-          name="exterior_color"
-        />
-      </div>
-      <div class="form-group">
-        <label for="interior_color">Interior Color</label>
-        <input
-          type="text"
-          class="form-control"
-          id="interior_color"
-          name="interior_color"
-        />
-      </div>
-      <div class="form-group">
-        <label for="state">State</label>
-        <input
-          type="text"
-          class="form-control"
-          id="state"
-          name="state"
-          maxlength="2"
-        />
-      </div>
-      <div class="form-group">
-        <label for="zip_code">Zip Code</label>
-        <input
-          type="text"
-          class="form-control"
-          id="zip_code"
-          name="zip_code"
-          maxlength="10"
-        />
-      </div>
+
       <div class="form-group">
         <label for="listing_end_date">Listing End Date</label>
         <input
@@ -126,6 +174,7 @@
           name="listing_end_date"
         />
       </div>
+
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </div>
