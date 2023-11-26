@@ -1181,8 +1181,6 @@ def sell_post_success(request):
     })
 
 # Chat with buyer view function
-
-
 def chat_with_buyer(request):
     current_user_id = request.session.get(
         'user_id', '')
@@ -1191,6 +1189,7 @@ def chat_with_buyer(request):
     selected_listing_id = None
     selected_buyer_name = None
     selected_buyer_id = None
+    is_allowed_chat = get_is_allowed_chat(current_user_id)
 
     # Handling message submission
     if request.method == 'POST' and 'new_message' in request.POST:
@@ -1255,6 +1254,7 @@ def chat_with_buyer(request):
         'selected_buyer_name': selected_buyer_name,
         'selected_buyer_id': selected_buyer_id,
         'chat_history': chat_history,
+        'is_allowed_chat': is_allowed_chat,
         'current_page': 'chat_with_buyer',
     })
 
