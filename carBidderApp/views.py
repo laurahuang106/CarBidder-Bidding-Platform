@@ -1,3 +1,5 @@
+from gettext import translation
+import random
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth.hashers import make_password
@@ -1259,14 +1261,80 @@ def chat_with_buyer(request):
     })
 
 
-def choose_bid(request, listing_id):   
+# def choose_bid(request, listing_id):   
+#     user_email = request.session.get('email', '')
+#     if user_email:
+#         update_session(request, user_email)
+
+#     user_id = request.session.get('user_id', '')
+#     user_name = request.session.get('user_name', '')
+#     user_type = request.session.get('user_type', '')
+
+#     # Check if the listing already has a winning bid
+#     with connection.cursor() as cursor:
+#         cursor.execute("""
+#             SELECT is_winner
+#             FROM BIDDINGS
+#             WHERE listing_id = %s AND is_winner = TRUE
+#         """, [listing_id])
+#         winner_exists = cursor.fetchone() is not None
+
+#     # Fetch bid details using bidding_id
+#     bids_list = []
+#     if not winner_exists:
+#         with connection.cursor() as cursor:
+#             cursor.execute("""
+#                 SELECT 
+#                     b.bidding_id,
+#                     b.user_id,
+#                     b.bidding_amount,
+#                     b.bidding_date,
+#                     u.user_name,
+#                     u.balance,
+#                     (u.balance - b.bidding_amount >= 0) AS enough_money_to_pay
+#                 FROM 
+#                     BIDDINGS b
+#                 JOIN 
+#                     USERS u ON b.user_id = u.user_id
+#                 WHERE 
+#                     b.listing_id = %s
+#                 ORDER BY 
+#                     b.bidding_amount DESC
+
+#             """, [listing_id])
+
+#             bids = cursor.fetchall()
+    
+
+# # Check if the results are not empty
+   
+#         if bids:
+#             for bid in bids:
+#                 bids_list.append({
+#                     'bidding_id': bid[0],     
+#                     'bidding_amount': bid[2],  
+#                     'bidding_date': bid[3].strftime("%Y-%m-%d %H:%M:%S"), 
+#                     'user_name': bid[4],   
+#                     'balance': bid[5],    
+#                     'enough_money_to_pay': bid[6]  
+#                 })
+
+#     return render(request, 'choose_bid.html', {
+#         'winner_exists': winner_exists,
+#         'bids_list': bids_list,
+#         'user_type': user_type,
+#         'user_name': user_name,
+#         'user_id': user_id,
+#         'listing_id': listing_id,
+#     })
+def choose_bid(request, listing_id):
     user_email = request.session.get('email', '')
     if user_email:
         update_session(request, user_email)
 
     user_id = request.session.get('user_id', '')
     user_name = request.session.get('user_name', '')
-    user_type = request.session.get('user_type', '')
+    user_type = request.session.get('user_type', '') 
 
     # Check if the listing already has a winning bid
     with connection.cursor() as cursor:
@@ -1277,7 +1345,7 @@ def choose_bid(request, listing_id):
         """, [listing_id])
         winner_exists = cursor.fetchone() is not None
 
-    # Fetch bid details using bidding_id
+    # Fetch bid details using listing_id
     bids_list = []
     if not winner_exists:
         with connection.cursor() as cursor:
@@ -1298,51 +1366,112 @@ def choose_bid(request, listing_id):
                     b.listing_id = %s
                 ORDER BY 
                     b.bidding_amount DESC
+            """, [listing_id])
+            bids = cursor.fetchall()
+            if bids:
+                for bid in bids:
+                    bids_list.append({
+                        'bidding_id': bid[0],
+                        'user_id': bid[1],
+                        'bidding_amount': bid[2],
+                        'bidding_date': bid[3].strftime("%Y-%m-%d %H:%M:%S"),
+                        'user_name': bid[4],
+                        'balance': bid[5],
+                        'enough_money_to_pay': bid[6]
+                    })
+    if request.method == 'POST':
+        # Get bidding_id from the POST request
+        bidding_id = request.POST.get('bidding_id')
+        
+        with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT user_id, bidding_amount
+                    FROM BIDDINGS
+                    WHERE bidding_id = %s;
+                """, [bidding_id])
+                bid = cursor.fetchone()
+        if bid:
+                buyer_id, order_price = bid
+                seller_id = request.session.get('user_id')
 
+        # Insert transaction data for seller
+        with connection.cursor() as cursor:
+                transaction_type1 = 'receive'
+                cursor.execute("""
+                    INSERT INTO BALANCE_TRANSACTIONS (user_id, current_balance, date, transaction_type, transaction_amount)
+                    VALUES (%s, (SELECT balance FROM USERS WHERE user_id = %s), NOW(), %s, %s);
+                    """, (seller_id, seller_id,  transaction_type1, order_price))
+        with connection.cursor() as cursor:
+                    # Insert transaction data for buyer
+                transaction_type2 = 'pay'
+                cursor.execute("""
+                        INSERT INTO BALANCE_TRANSACTIONS (user_id, current_balance, date, transaction_type, transaction_amount)
+                        VALUES (%s, (SELECT balance FROM USERS WHERE user_id = %s), NOW(), %s, %s);
+                    """, (buyer_id, buyer_id,  transaction_type2, order_price))
+        with connection.cursor() as cursor:
+                    # Update balance in USERS table for seller
+                cursor.execute("""
+                        UPDATE USERS
+                        SET balance = balance + %s
+                        WHERE user_id = %s;
+                    """, (order_price, seller_id))
+
+                    # Update balance in USERS table for buyer
+                cursor.execute("""
+                        UPDATE USERS
+                        SET balance = balance - %s
+                        WHERE user_id = %s;
+                    """, (order_price, buyer_id))       
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                UPDATE BIDDINGS
+                SET is_winner = FALSE
+                WHERE listing_id = %s;
             """, [listing_id])
 
-            bids = cursor.fetchall()
-    
-
-# Check if the results are not empty
-   
-        if bids:
-            for bid in bids:
-                bids_list.append({
-                    'bidding_id': bid[0],     
-                    'bidding_amount': bid[2],  
-                    'bidding_date': bid[3].strftime("%Y-%m-%d %H:%M:%S"), 
-                    'user_name': bid[4],   
-                    'balance': bid[5],    
-                    'enough_money_to_pay': bid[6]  
-                })
-
+        # Set the chosen bid as the winning bid
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                UPDATE BIDDINGS
+                SET is_winner = TRUE
+                WHERE bidding_id = %s;
+            """, [bidding_id])
         
-    # if not bid_details:
-    #     # If there is no bid with the given bidding_id
-    #     messages.error(request, 'No bid found with the provided ID.')
-    #     return redirect('profile')  
-
-    # If a POST request is made, it means the seller is selecting a bid
-    
-    # if request.method == 'POST':
-    #     # ... your POST handling logic here ...
-    #     buyer_id = request.POST.get('buyer_id')
-    #     order_price = request.POST.get('order_price')
+    # Generate a random tracking number
+        tracking_number = random.randint(10000, 99999)
+        is_paid = True
+       
         
-    #     with connection.cursor() as cursor:
-    #         cursor.execute("SELECT MAX(order_id) FROM VEHICLE_ORDERS")
-    #         max_order_id_result = cursor.fetchone()
-    #         new_order_id = max_order_id_result[0] + 1 if max_order_id_result[0] else 1
+        # generate order record
+        with connection.cursor() as cursor:
+        #     cursor.execute("SELECT MAX(order_id) FROM VEHICLE_ORDERS;")
+        #     max_id = cursor.fetchone()[0]
+        #     new_order_id = max_id + 1 if max_id else 1
 
-    #         cursor.execute("""
-    #             INSERT INTO VEHICLE_ORDERS (order_id, listing_id, buyer_id, seller_id, order_price, order_date, tracking_number, is_paid, is_shipped)
-    #             VALUES (%s, %s, %s, %s, %s, NOW(), '', FALSE, FALSE)
-    #         """, [new_order_id,listing_id , buyer_id, user_id, order_price])
-    #         connection.commit()
+            # Insert order into VEHICLE_ORDERS
+            cursor.execute("""
+                    INSERT INTO VEHICLE_ORDERS (listing_id, buyer_id, seller_id, order_price, order_date, tracking_number, is_paid)
+                    VALUES (%s, %s, %s, %s, NOW(), %s, %s);
+            """, (listing_id, buyer_id, user_id, order_price, tracking_number, is_paid))
+        with connection.cursor() as cursor:
+            # Update all biddings to not be the winner
+            cursor.execute("""
+                    UPDATE BIDDINGS
+                    SET is_winner = FALSE
+                    WHERE listing_id = %s;
+            """, [listing_id])
+        with connection.cursor() as cursor:
+                # Set the selected bid as the winner
+            cursor.execute("""
+                    UPDATE BIDDINGS
+                    SET is_winner = TRUE
+                    WHERE bidding_id = %s;
+                """, [bidding_id])
 
-    #     return redirect('profile')
-    # Pass the bid details to the template
+            return redirect('profile')
+
+    # If GET request or no bid has been selected, render the page with bid options
     return render(request, 'choose_bid.html', {
         'winner_exists': winner_exists,
         'bids_list': bids_list,
@@ -1351,4 +1480,3 @@ def choose_bid(request, listing_id):
         'user_id': user_id,
         'listing_id': listing_id,
     })
-    
