@@ -17,7 +17,7 @@
                 {% if user.1 != "ADMIN" %}
                 <tr>
                     <td>{{ user.0 }}</td>
-                    <td>{{ user.2 }}</td>
+                    <td><a href="/profile/{{ user.0 }}/">{{ user.2 }}</a></td>
                     <td>{{ user.3 }}</td>
                     <td>
                         <form method="post" action="{% url 'users' %}">
