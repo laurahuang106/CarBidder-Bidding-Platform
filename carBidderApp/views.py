@@ -981,6 +981,7 @@ def bid(request, listing_id):
         'make': result[5],
         'model': result[6],
         'price': result[10],
+        #12334455234235423523
     }
 
     user_name = request.session.get('user_name', '')
