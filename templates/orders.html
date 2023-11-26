@@ -63,7 +63,7 @@
             {% for order in orders %}
             <tr>
                 <td>{{ order.0 }}</td>
-                <td>{{ order.1 }}</td>
+                <td><a href="{% url 'product_detail' listing_id=order.1 %}">{{ order.1 }}</a></td>
                 <td><img src="{{ order.2 }}" alt="Vehicle Image" style="width:100px; height:auto;"></td>
                 <td>$ {{ order.3 }}</td>
                 <td>{{ order.4 }}</td>
