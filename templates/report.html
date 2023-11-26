@@ -1,5 +1,6 @@
 {% extends "home.html" %}
 {% block body %}
+{% if user_type == 'ADMIN' %}
 <div class="container mt-4">
     <table class="table table-striped table-bordered">
         <thead>
@@ -28,4 +29,9 @@
         </tbody>
     </table>
 </div>
+{% else %}
+<div class="container mt-4">
+    <p>You do not have permission to view this page.</p>
+</div>
+{% endif %}
 {% endblock %}
