@@ -215,7 +215,7 @@ def profile(request):
                 query = """
                     SELECT lv.listing_id, lv.make, lv.model, lv.year_of_production, 
                         lv.image_url, lv.listing_status, lv.listing_start_date, 
-                        vo.order_id, vo.is_paid, vo.is_shipped
+                        vo.order_id, vo.is_paid, vo.is_shipped, lv.is_verified
                     FROM LISTED_VEHICLES lv
                     LEFT JOIN VEHICLE_ORDERS vo ON lv.listing_id = vo.listing_id
                     WHERE lv.seller_id = %s;
@@ -1160,6 +1160,7 @@ def sell_post(request):
                     INSERT INTO LISTED_VEHICLES (VIN, seller_id, image_url, vehicle_description, make, model, fuel_type, year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_start_date, listing_end_date)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s);
                 """
+                print(query)
                 cursor.execute(query, (vin, user_id, image_url, vehicle_description, make, model, fuel_type,
                                year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_end_date))
                 connection.commit()
