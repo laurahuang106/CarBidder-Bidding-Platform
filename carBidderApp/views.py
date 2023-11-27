@@ -42,10 +42,15 @@ def home(request):
 
 
 def handle_comment_submission(request):
+    print('here0')
     if request.method == 'POST' and 'comment' in request.POST:
+        print('here1')
         if 'user_id' in request.session:
             user_id = request.session.get('user_id')
             report_content = request.POST.get('comment')
+            print('here2')
+            print(user_id)
+            print(report_content)
             try:
                 with connection.cursor() as cursor:
                     query = """
@@ -227,7 +232,7 @@ def profile(request):
                     if row[7] is not None and row[8] == b'\x01' and row[9] == b'\x01':
                         rate_buyer_link = f"seller_rate_buyer/{row[7]}/"
                     listings.append(row + (rate_buyer_link,))
-                
+
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
@@ -253,7 +258,7 @@ def profile(request):
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
-    
+
     # Creating the context dictionary
     context = {
         'user_id': user_id,
@@ -837,7 +842,7 @@ def product_detail(request, listing_id):
         'interior_color': result[12],
         'state': result[13],
         'zip_code': result[14],
-        'seller_id':result[19],
+        'seller_id': result[19],
         'seller_name': result[21],
         'seller_rating': result[24],
         'current_bid': current_bid[0] if current_bid else None,
@@ -885,23 +890,26 @@ def product_detail(request, listing_id):
         'user_name': user_name,
         'user_type': user_type,
         'user_id': user_id,
+        'seller_id': seller_id,
         'chat_history': chat_history,
         'is_seller': is_seller,
         'is_allowed_chat': is_allowed_chat,
     })
 
+
 def get_is_allowed_chat(user_id):
     with connection.cursor() as cursor:
         query = "SELECT is_allowed_chat FROM USERS WHERE user_id = %s"
         cursor.execute(query, [user_id])
-        
+
         row = cursor.fetchone()
-        
+
         if row is not None:
             # row[0] will be the is_allowed_chat value
             return row[0]
         else:
             return None  # or handle as appropriate
+
 
 def get_chat_history(listing_id, buyer_id, seller_id):
     chat_messages = []
@@ -992,7 +1000,7 @@ def bid(request, listing_id):
         'make': result[5],
         'model': result[6],
         'price': result[10],
-        #12334455234235423523
+        # 12334455234235423523
     }
 
     user_name = request.session.get('user_name', '')
@@ -1068,7 +1076,7 @@ def chat(request):
 def buyer_rate_seller(request, order_id):
     user_id = request.session.get('user_id', None)
     user_name = request.session.get('user_name', '')
-    user_type = request.session.get('user_type', '') 
+    user_type = request.session.get('user_type', '')
     is_seller = request.session.get('is_seller', '')
 
     # Initialize existing_rating to None
@@ -1129,6 +1137,8 @@ def buyer_rate_seller(request, order_id):
 
 # post new vehicle listings
 def sell_post(request):
+    handle_comment_submission(request)
+    
     user_email = request.session.get('email', '')
     if user_email:
         update_session(request, user_email)
@@ -1198,9 +1208,11 @@ def sell_post_success(request):
     })
 
 # Chat with buyer view function
+
 def chat_with_buyer(request):
-    current_user_id = request.session.get(
-        'user_id', '')
+    handle_comment_submission(request)
+
+    current_user_id = request.session.get('user_id', '')
     chats = []
     chat_history = []
     selected_listing_id = None
@@ -1214,14 +1226,16 @@ def chat_with_buyer(request):
         selected_buyer_name = request.POST.get('selected_buyer_name')
         selected_buyer_id = request.POST.get('selected_buyer_id')
         if add_new_chat(request, selected_listing_id, current_user_id, selected_buyer_id):
-            chat_history = get_chat_history(selected_listing_id, current_user_id, selected_buyer_id)
+            chat_history = get_chat_history(
+                selected_listing_id, current_user_id, selected_buyer_id)
 
     # Handling chat selection
     elif request.method == 'POST' and 'selected_listing_id' in request.POST:
         selected_listing_id = request.POST.get('selected_listing_id')
         selected_buyer_name = request.POST.get('selected_buyer_name')
         selected_buyer_id = request.POST.get('selected_buyer_id')
-        chat_history = get_chat_history(selected_listing_id, current_user_id, selected_buyer_id)
+        chat_history = get_chat_history(
+            selected_listing_id, current_user_id, selected_buyer_id)
 
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -1257,6 +1271,8 @@ def chat_with_buyer(request):
         chats = cursor.fetchall()
 
     user_id = request.session.get('user_id', '')
+    print('user_id')
+    print(user_id)
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
     is_seller = request.session.get('is_seller', '')
@@ -1276,7 +1292,7 @@ def chat_with_buyer(request):
     })
 
 
-# def choose_bid(request, listing_id):   
+# def choose_bid(request, listing_id):
 #     user_email = request.session.get('email', '')
 #     if user_email:
 #         update_session(request, user_email)
@@ -1299,7 +1315,7 @@ def chat_with_buyer(request):
 #     if not winner_exists:
 #         with connection.cursor() as cursor:
 #             cursor.execute("""
-#                 SELECT 
+#                 SELECT
 #                     b.bidding_id,
 #                     b.user_id,
 #                     b.bidding_amount,
@@ -1307,31 +1323,31 @@ def chat_with_buyer(request):
 #                     u.user_name,
 #                     u.balance,
 #                     (u.balance - b.bidding_amount >= 0) AS enough_money_to_pay
-#                 FROM 
+#                 FROM
 #                     BIDDINGS b
-#                 JOIN 
+#                 JOIN
 #                     USERS u ON b.user_id = u.user_id
-#                 WHERE 
+#                 WHERE
 #                     b.listing_id = %s
-#                 ORDER BY 
+#                 ORDER BY
 #                     b.bidding_amount DESC
 
 #             """, [listing_id])
 
 #             bids = cursor.fetchall()
-    
+
 
 # # Check if the results are not empty
-   
+
 #         if bids:
 #             for bid in bids:
 #                 bids_list.append({
-#                     'bidding_id': bid[0],     
-#                     'bidding_amount': bid[2],  
-#                     'bidding_date': bid[3].strftime("%Y-%m-%d %H:%M:%S"), 
-#                     'user_name': bid[4],   
-#                     'balance': bid[5],    
-#                     'enough_money_to_pay': bid[6]  
+#                     'bidding_id': bid[0],
+#                     'bidding_amount': bid[2],
+#                     'bidding_date': bid[3].strftime("%Y-%m-%d %H:%M:%S"),
+#                     'user_name': bid[4],
+#                     'balance': bid[5],
+#                     'enough_money_to_pay': bid[6]
 #                 })
 
 #     return render(request, 'choose_bid.html', {
@@ -1349,7 +1365,7 @@ def choose_bid(request, listing_id):
 
     user_id = request.session.get('user_id', '')
     user_name = request.session.get('user_name', '')
-    user_type = request.session.get('user_type', '') 
+    user_type = request.session.get('user_type', '')
 
     # Check if the listing already has a winning bid
     with connection.cursor() as cursor:
@@ -1397,46 +1413,46 @@ def choose_bid(request, listing_id):
     if request.method == 'POST':
         # Get bidding_id from the POST request
         bidding_id = request.POST.get('bidding_id')
-        
+
         with connection.cursor() as cursor:
-                cursor.execute("""
+            cursor.execute("""
                     SELECT user_id, bidding_amount
                     FROM BIDDINGS
                     WHERE bidding_id = %s;
                 """, [bidding_id])
-                bid = cursor.fetchone()
+            bid = cursor.fetchone()
         if bid:
-                buyer_id, order_price = bid
-                seller_id = request.session.get('user_id')
+            buyer_id, order_price = bid
+            seller_id = request.session.get('user_id')
 
         # Insert transaction data for seller
         with connection.cursor() as cursor:
-                transaction_type1 = 'receive'
-                cursor.execute("""
+            transaction_type1 = 'receive'
+            cursor.execute("""
                     INSERT INTO BALANCE_TRANSACTIONS (user_id, current_balance, date, transaction_type, transaction_amount)
                     VALUES (%s, (SELECT balance FROM USERS WHERE user_id = %s), NOW(), %s, %s);
                     """, (seller_id, seller_id,  transaction_type1, order_price))
         with connection.cursor() as cursor:
-                    # Insert transaction data for buyer
-                transaction_type2 = 'pay'
-                cursor.execute("""
+            # Insert transaction data for buyer
+            transaction_type2 = 'pay'
+            cursor.execute("""
                         INSERT INTO BALANCE_TRANSACTIONS (user_id, current_balance, date, transaction_type, transaction_amount)
                         VALUES (%s, (SELECT balance FROM USERS WHERE user_id = %s), NOW(), %s, %s);
                     """, (buyer_id, buyer_id,  transaction_type2, order_price))
         with connection.cursor() as cursor:
-                    # Update balance in USERS table for seller
-                cursor.execute("""
+            # Update balance in USERS table for seller
+            cursor.execute("""
                         UPDATE USERS
                         SET balance = balance + %s
                         WHERE user_id = %s;
                     """, (order_price, seller_id))
 
-                    # Update balance in USERS table for buyer
-                cursor.execute("""
+            # Update balance in USERS table for buyer
+            cursor.execute("""
                         UPDATE USERS
                         SET balance = balance - %s
                         WHERE user_id = %s;
-                    """, (order_price, buyer_id))       
+                    """, (order_price, buyer_id))
 
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -1452,17 +1468,16 @@ def choose_bid(request, listing_id):
                 SET is_winner = TRUE
                 WHERE bidding_id = %s;
             """, [bidding_id])
-        
+
     # Generate a random tracking number
         tracking_number = random.randint(10000, 99999)
         is_paid = True
-       
-        
+
         # generate order record
         with connection.cursor() as cursor:
-        #     cursor.execute("SELECT MAX(order_id) FROM VEHICLE_ORDERS;")
-        #     max_id = cursor.fetchone()[0]
-        #     new_order_id = max_id + 1 if max_id else 1
+            #     cursor.execute("SELECT MAX(order_id) FROM VEHICLE_ORDERS;")
+            #     max_id = cursor.fetchone()[0]
+            #     new_order_id = max_id + 1 if max_id else 1
 
             # Insert order into VEHICLE_ORDERS
             cursor.execute("""
@@ -1477,7 +1492,7 @@ def choose_bid(request, listing_id):
                     WHERE listing_id = %s;
             """, [listing_id])
         with connection.cursor() as cursor:
-                # Set the selected bid as the winner
+            # Set the selected bid as the winner
             cursor.execute("""
                     UPDATE BIDDINGS
                     SET is_winner = TRUE
@@ -1496,6 +1511,7 @@ def choose_bid(request, listing_id):
         'listing_id': listing_id,
     })
 
+
 def seller_rate_buyer(request, listing_id):
     user_id = request.session.get('user_id', None)
     user_name = request.session.get('user_name', '')
@@ -1504,16 +1520,18 @@ def seller_rate_buyer(request, listing_id):
     rating_exists = False
     current_rating = None
 
-     # Track if the user is the seller of the vehicle
+    # Track if the user is the seller of the vehicle
     try:
         with connection.cursor() as cursor:
             # Validate if the listing_id exists in LISTED_VEHICLES
-            cursor.execute("SELECT COUNT(*) FROM LISTED_VEHICLES WHERE listing_id = %s", [listing_id])
+            cursor.execute(
+                "SELECT COUNT(*) FROM LISTED_VEHICLES WHERE listing_id = %s", [listing_id])
             if cursor.fetchone()[0] == 0:
                 return HttpResponseForbidden("Listing not found.")
-            
+
             # Fetch seller_id for the listing
-            cursor.execute("SELECT seller_id FROM LISTED_VEHICLES WHERE listing_id = %s", [listing_id])
+            cursor.execute(
+                "SELECT seller_id FROM LISTED_VEHICLES WHERE listing_id = %s", [listing_id])
             seller_id = cursor.fetchone()[0]
 
             # Check if the logged-in user is the seller
@@ -1544,7 +1562,8 @@ def seller_rate_buyer(request, listing_id):
         try:
             with connection.cursor() as cursor:
                 # Fetch the buyer_id from VEHICLE_ORDERS
-                cursor.execute("SELECT buyer_id FROM VEHICLE_ORDERS WHERE listing_id = %s", [listing_id])
+                cursor.execute(
+                    "SELECT buyer_id FROM VEHICLE_ORDERS WHERE listing_id = %s", [listing_id])
                 buyer_id = cursor.fetchone()[0]
 
                 # Insert the rating
@@ -1560,6 +1579,7 @@ def seller_rate_buyer(request, listing_id):
         return redirect('profile')
 
     return render(request, 'seller_rate_buyer.html', {
+        'user_id': user_id,
         'user_name': user_name,
         'listing_id': listing_id,
         'user_type': user_type,
