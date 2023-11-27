@@ -34,9 +34,9 @@ urlpatterns = [
          views.other_user_profile, name='other_user_profile'),
     path('weekly_reports/', views.weekly_reports, name='weekly_reports'),
 
-    # review
-    path('buyer_rate_seller/<int:order_id>/',
-         views.buyer_rate_seller, name='buyer_rate_seller'),
+    # rating
+    path('buyer_rate_seller/<int:order_id>/', views.buyer_rate_seller, name='buyer_rate_seller'),
+    path('seller_rate_buyer/<int:listing_id>/', views.seller_rate_buyer, name='seller_rate_buyer'),
 
 
     path('search', views.search_car, name="search_car"),

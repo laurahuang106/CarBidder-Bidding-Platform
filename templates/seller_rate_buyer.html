@@ -1,0 +1,20 @@
+{% extends "home.html" %}
+{% block body %}
+<h2 style="text-align: center;">Rate Your Buyer</h2>
+
+{% if rating_exists %}
+    <div style="text-align: center;">
+        <p style="text-align: center;">You have already rated this buyer: </p>
+        <p style="font-size: 24px" >{{ current_rating }}/5</p>
+    </div>
+{% else %}
+    <form method="post" action="{% url 'seller_rate_buyer' listing_id=listing_id %}" style="text-align: center;">
+        {% csrf_token %}
+        <label for="rate">Rate (1-5):</label>
+        <input type="number" id="rate" name="rate" min="1" max="5" required>
+
+        <button type="submit">Submit Rating</button>
+    </form>
+{% endif %}
+
+{% endblock %}
