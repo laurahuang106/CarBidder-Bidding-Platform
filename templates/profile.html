@@ -91,50 +91,56 @@
 
     </br>
     <h3>Your Listed Vehicles</h3>
-    {% if listings %}
-    <table>
-        <thead>
-            <tr>
-                <th>Listing ID</th>
-                <th>Make</th>
-                <th>Model</th>
-                <th>Year of Production</th>
-                <th>Image</th>
-                <th>Listing Date</th>
-                <th>Status</th>
-                <th>Choose Bid</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for listing in listings %}
-            <tr>
-                <td><a href="{% url 'product_detail' listing_id=listing.0 %}">{{ listing.0 }}</a></td>
-                <td>{{ listing.1 }}</td>
-                <td>{{ listing.2 }}</td>
-                <td>{{ listing.3 }}</td>
-                <td>
-                    {% if listing.4 %}
-                        <img src="{{ listing.4 }}" alt="Vehicle Image" style="width:100px; height:auto;">
-                    {% else %}
-                        No Image
-                    {% endif %}
-                </td>
-                <td>{{ listing.6}}</td>
-                <td>{{ listing.5|yesno:"Active,Not Active" }}</td>
-                <!-- link to choose_bid -->
-                <td>
-                    <!-- Check if the listing is not active -->
-                    {% if listing.5 == False %}
-                        <a href="{% url 'choose_bid' listing_id=listing.0 %}" class="btn btn-primary">Choose Bid</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-        <p>You have no listed vehicles.</p>
-    {% endif %}
+{% if listings %}
+<table>
+    <thead>
+        <tr>
+            <th>Listing ID</th>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Year of Production</th>
+            <th>Image</th>
+            <th>Listing Date</th>
+            <th>Status</th>
+            <th>Choose Bid</th>
+            <th>Rate Buyer</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for listing in listings %}
+        <tr>
+            <!-- Existing cells -->
+            <td><a href="{% url 'product_detail' listing_id=listing.0 %}">{{ listing.0 }}</a></td>
+            <td>{{ listing.1 }}</td>
+            <td>{{ listing.2 }}</td>
+            <td>{{ listing.3 }}</td>
+            <td>
+                {% if listing.4 %}
+                    <img src="{{ listing.4 }}" alt="Vehicle Image" style="width:100px; height:auto;">
+                {% else %}
+                    No Image
+                {% endif %}
+            </td>
+            <td>{{ listing.6}}</td>
+            <td>{{ listing.5|yesno:"Active,Not Active" }}</td>
+            <td>
+                {% if listing.5 == False %}
+                    <a href="{% url 'choose_bid' listing_id=listing.0 %}" class="btn btn-primary">Choose Bid</a>
+                {% endif %}
+            </td>
+            <!-- New cell for Rate Buyer link -->
+            <td>
+                {% if listing.10 %}
+                    <a href="{% url 'seller_rate_buyer' listing_id=listing.0 %}">rate buyer</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>You have no listed vehicles.</p>
+{% endif %}
     </br>
     
 <!-- In the 'Your Biddings' table -->

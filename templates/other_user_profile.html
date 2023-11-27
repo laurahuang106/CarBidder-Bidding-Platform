@@ -4,8 +4,18 @@
 </br>
     <!-- User Details Table -->
     <ul>
-        <li style="text-align: center;"><strong>Seller Rating:</strong> {{ user_details.1 }}</li>
-        <li style="text-align: center;"><strong>Buyer Rating:</strong> {{ user_details.2 }}</li>
+        <li style="text-align: center;"><strong>Seller Rating:</strong> 
+            {% if user_details.3 == 0 %}N/A
+            {% else %}
+            {{ user_details.1 }}
+            {% endif %}
+        </li>
+        <li style="text-align: center;"><strong>Buyer Rating:</strong> 
+            {% if user_details.4 == 0 %}N/A
+            {% else %}
+            {{ user_details.2 }}
+            {% endif %}
+        </li>
     </ul>
     </br>
 

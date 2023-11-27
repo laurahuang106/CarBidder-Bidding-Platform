@@ -208,21 +208,30 @@ def profile(request):
     is_allow_list = request.session.get('is_allow_list', '')
     is_seller = request.session.get('is_seller', '')
 
-    # Fetch the listings vehicles from the database
     listings = []
     if user_id:
         try:
             with connection.cursor() as cursor:
                 query = """
-                    SELECT listing_id, make, model, year_of_production, image_url, listing_status, listing_start_date
-                    FROM LISTED_VEHICLES
-                    WHERE seller_id = %s;
+                    SELECT lv.listing_id, lv.make, lv.model, lv.year_of_production, 
+                        lv.image_url, lv.listing_status, lv.listing_start_date, 
+                        vo.order_id, vo.is_paid, vo.is_shipped
+                    FROM LISTED_VEHICLES lv
+                    LEFT JOIN VEHICLE_ORDERS vo ON lv.listing_id = vo.listing_id
+                    WHERE lv.seller_id = %s;
                 """
                 cursor.execute(query, [user_id])
-                listings = cursor.fetchall()
+                for row in cursor.fetchall():
+                    # Check if order is paid and shipped
+                    rate_buyer_link = None
+                    if row[7] is not None and row[8] == b'\x01' and row[9] == b'\x01':
+                        rate_buyer_link = f"seller_rate_buyer/{row[7]}/"
+                    listings.append(row + (rate_buyer_link,))
+                
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
+    print(listings)
 
     # Fetch the user's biddings from the database
     biddings = []
@@ -600,9 +609,10 @@ def other_user_profile(request, other_user_id):
 
             # Fetch user details
             cursor.execute(
-                "SELECT user_name, seller_rating, buyer_rating FROM USERS WHERE user_id = %s",
+                "SELECT user_name, seller_rating, buyer_rating, num_of_seller_rating, num_of_buyer_rating FROM USERS WHERE user_id = %s",
                 [other_user_id])
             other_user_details = cursor.fetchone()
+            print(other_user_details)
 
             # Fetch listed vehicles
             if other_user_details:
@@ -1058,6 +1068,7 @@ def chat(request):
 def buyer_rate_seller(request, order_id):
     user_id = request.session.get('user_id', None)
     user_name = request.session.get('user_name', '')
+    user_type = request.session.get('user_type', '') 
     is_seller = request.session.get('is_seller', '')
 
     # Initialize existing_rating to None
@@ -1109,9 +1120,10 @@ def buyer_rate_seller(request, order_id):
 
     return render(request, 'buyer_rate_seller.html', {
         'user_name': user_name,
+        'user_type': user_type,
         'order_id': order_id,
         'is_seller': is_seller,
-        'existing_rating': existing_rating[0] if existing_rating else None
+        'existing_rating': existing_rating[0] if existing_rating else None,
     })
 
 
@@ -1481,4 +1493,75 @@ def choose_bid(request, listing_id):
         'user_name': user_name,
         'user_id': user_id,
         'listing_id': listing_id,
+    })
+
+def seller_rate_buyer(request, listing_id):
+    user_id = request.session.get('user_id', None)
+    user_name = request.session.get('user_name', '')
+    user_type = request.session.get('user_type', '')
+
+    rating_exists = False
+    current_rating = None
+
+     # Track if the user is the seller of the vehicle
+    try:
+        with connection.cursor() as cursor:
+            # Validate if the listing_id exists in LISTED_VEHICLES
+            cursor.execute("SELECT COUNT(*) FROM LISTED_VEHICLES WHERE listing_id = %s", [listing_id])
+            if cursor.fetchone()[0] == 0:
+                return HttpResponseForbidden("Listing not found.")
+            
+            # Fetch seller_id for the listing
+            cursor.execute("SELECT seller_id FROM LISTED_VEHICLES WHERE listing_id = %s", [listing_id])
+            seller_id = cursor.fetchone()[0]
+
+            # Check if the logged-in user is the seller
+            if user_id == seller_id:
+                is_seller = True
+            else:
+                return HttpResponseForbidden("You are not the seller.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+    try:
+        with connection.cursor() as cursor:
+            # Check if a rating already exists
+            cursor.execute("""
+                SELECT rate FROM RATINGS
+                WHERE listing_id = %s AND seller_id = %s AND seller_rate_from_winner = %s AND winner_rate_from_seller = %s
+            """, [listing_id, user_id, False, True])
+            result = cursor.fetchone()
+            if result:
+                rating_exists = True
+                current_rating = result[0]
+    except Exception as e:
+        print(f"An error occurred while checking existing rating: {e}")
+
+    if request.method == 'POST' and not rating_exists:
+        rate = request.POST.get('rate')
+
+        try:
+            with connection.cursor() as cursor:
+                # Fetch the buyer_id from VEHICLE_ORDERS
+                cursor.execute("SELECT buyer_id FROM VEHICLE_ORDERS WHERE listing_id = %s", [listing_id])
+                buyer_id = cursor.fetchone()[0]
+
+                # Insert the rating
+                cursor.execute("""
+                    INSERT INTO RATINGS (listing_id, seller_id, winner_id, seller_rate_from_winner, winner_rate_from_seller, rate)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (listing_id, user_id, buyer_id, False, True, rate))
+
+        except Exception as e:
+            print(f"An error occurred while inserting the rating: {e}")
+            # Handle the error
+
+        return redirect('profile')
+
+    return render(request, 'seller_rate_buyer.html', {
+        'user_name': user_name,
+        'listing_id': listing_id,
+        'user_type': user_type,
+        'rating_exists': rating_exists,
+        'current_rating': current_rating
     })

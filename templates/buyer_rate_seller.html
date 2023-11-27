@@ -1,14 +1,13 @@
 {% extends "home.html" %}
 {% block body %}
 <div style="text-align: center;">
+    <h2>Rate Your Seller</h2>
 
     {% if existing_rating is not None %}
-    <h2>Successfully rated!</h2>
-        <p>Rating: </p>
-        <p style="font-size: 24px;">{{ existing_rating }}</p>
+        <p>You have already rated this buyer:  </p>
+        <p style="font-size: 24px;">{{ existing_rating }}/5</p>
 
     {% else %}
-    <h2>Rate Your Seller</h2>
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="order_id" value="{{ order_id }}">
