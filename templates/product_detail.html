@@ -78,6 +78,9 @@
           <!-- Bidding Section -->
           <div class="bidding-section">
             <h4>Interested? Bid here!</h4>
+            {% if user_id == seller_id %}
+            <p>You cannot bid on your own listings.</p>
+            {% else %}
             <a href="bid" class="btn btn-primary mt-1 mb-3" role="button"
               >Place your bid</a
             >
@@ -89,6 +92,7 @@
                 >${{ product.current_bid|default:"N/A" }}</span
               >
             </p>
+            {% endif %}
           </div>
 
           <!-- Chat with buyer -->
@@ -223,7 +227,8 @@
             <!-- Vehicle Info Section -->
             <div class="mb-4">
               <h3>
-                {{ product.year_of_production }} - {{ product.make }} {{ product.model }}
+                {{ product.year_of_production }} - {{ product.make }}
+                {{product.model }}
               </h3>
               <p><strong>Miles:</strong> {{ product.mileage }}</p>
               <p><strong>Starting Price:</strong> ${{ product.price }}</p>
@@ -247,7 +252,9 @@
             <!-- Seller Section -->
             <div>
               <h4>Seller: {{ product.seller_name }}</h4>
-              <a href="{% url 'other_user_profile' product.seller_id %}"> Check Seller Profile</a>
+              <a href="{% url 'other_user_profile' product.seller_id %}">
+                Check Seller Profile</a
+              >
               <p>Rating: {{ product.seller_rating }}</p>
             </div>
           </div>
