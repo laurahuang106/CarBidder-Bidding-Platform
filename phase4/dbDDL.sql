@@ -152,11 +152,25 @@ END;
 //
 
 
+-- update listing_status to True when admin set is_verified to true
+DELIMITER //
+
+CREATE TRIGGER update_listing_status
+BEFORE UPDATE ON LISTED_VEHICLES
+FOR EACH ROW
+BEGIN
+    IF NEW.is_verified = TRUE THEN
+        SET NEW.listing_status = TRUE;
+    END IF;
+END;
+
+//
+DELIMITER ;
+
+
+
 -- Procedure and Event: Update vehicle_listing if listing_end_date is reached. 
 -- Also, update BIDDINGS, ORDERS, TRANSACTIONS, USERS table.
-
-
-
 CREATE PROCEDURE UpdateExpiredListings()
 BEGIN
     DECLARE finished INTEGER DEFAULT 0;
