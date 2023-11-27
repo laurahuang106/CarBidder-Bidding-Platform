@@ -562,11 +562,24 @@ def weekly_reports(request):
     # Fetch top sellers data
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT user_id, user_name, seller_rating, num_of_seller_rating
-            FROM USERS
-            WHERE user_type = 'NORMAL_USER'
-            ORDER BY seller_rating DESC, num_of_seller_rating DESC
-            LIMIT 10
+            WITH RankedUsers AS (
+                SELECT
+                    user_id,
+                    user_name,
+                    seller_rating,
+                    num_of_seller_rating,
+                    DENSE_RANK() OVER (ORDER BY seller_rating DESC) AS user_rank
+                FROM USERS
+                WHERE user_type = 'NORMAL_USER' AND seller_rating != 0
+            )
+            SELECT 
+                user_id, 
+                user_name, 
+                seller_rating, 
+                num_of_seller_rating
+            FROM RankedUsers
+            WHERE user_rank <= 10
+            ORDER BY seller_rating DESC, num_of_seller_rating DESC;
         """)
         top_sellers = cursor.fetchall()
 
@@ -1138,7 +1151,7 @@ def buyer_rate_seller(request, order_id):
 # post new vehicle listings
 def sell_post(request):
     handle_comment_submission(request)
-    
+
     user_email = request.session.get('email', '')
     if user_email:
         update_session(request, user_email)

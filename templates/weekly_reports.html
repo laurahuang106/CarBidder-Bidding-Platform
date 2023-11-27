@@ -56,7 +56,7 @@
                 <ul class="list-group">
                     {% for vehicle in popular_vehicles %}
                         <li class="list-group-item">
-                            <strong>{{ vehicle.1 }} {{ vehicle.2 }} ({{ vehicle.3 }})</strong> - Listing ID: {{ vehicle.0 }}, Bids: {{ vehicle.4 }}
+                            <strong>{{ vehicle.1 }} {{ vehicle.2 }} ({{ vehicle.3 }})</strong> - Listing ID: {{ vehicle.0 }}, Bids: {{ vehicle.4 }}, <small><a href="/product/{{ vehicle.0 }}/">vehicle detail</a></small>
                         </li>
                     {% endfor %}
                 </ul>
@@ -76,7 +76,7 @@
             <ul class="list-group">
                 {% for seller in top_sellers %}
                 <li class="list-group-item">
-                    <strong>{{ seller.1 }}</strong> (Rating: {{ seller.2 }}, Number of Ratings: {{ seller.3 }})
+                    <strong>{{ seller.1 }}</strong> (Rating: {{ seller.2 }}, Number of Ratings: {{ seller.3 }})<small><a href="/profile/{{ seller.0 }}/">seller detail</a></small>
                 </li>
                 {% endfor %}
             </ul>
