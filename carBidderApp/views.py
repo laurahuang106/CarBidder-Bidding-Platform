@@ -3,7 +3,7 @@ import random
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from datetime import datetime, timedelta
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
@@ -220,7 +220,7 @@ def profile(request):
                 query = """
                     SELECT lv.listing_id, lv.make, lv.model, lv.year_of_production, 
                         lv.image_url, lv.listing_status, lv.listing_start_date, 
-                        vo.order_id, vo.is_paid, vo.is_shipped
+                        vo.order_id, vo.is_paid, vo.is_shipped, lv.is_verified
                     FROM LISTED_VEHICLES lv
                     LEFT JOIN VEHICLE_ORDERS vo ON lv.listing_id = vo.listing_id
                     WHERE lv.seller_id = %s;
@@ -471,7 +471,21 @@ def orders(request):
                     WHERE vo.buyer_id = %s;
                 """
                 cursor.execute(query, [user_id])
-                orders = cursor.fetchall()
+                rows = cursor.fetchall()
+                for row in rows:
+                    # Check if both is_shipped and is_paid are True
+                    is_shipped_and_paid = row[5] == b'\x01' and row[7] == b'\x01'
+                    # Check if is_shipped is True
+                    is_shipped = row[5] == b'\x01'
+                    # Check if is_paid is True
+                    is_paid = row[7] == b'\x01'
+
+                    # Append these three boolean values to the row
+                    orders.append(row + (is_shipped_and_paid, is_shipped, is_paid))
+                                    
+                
+                print(orders)
+                    
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
@@ -825,11 +839,12 @@ def product_detail(request, listing_id):
     if not result:
         raise Http404("Product does not exist")
 
-    # Check if the current user has bid on this product
+    # Check if there is a declared winner for this listing
+    is_winner_declared = result[-1]
 
-    # need modification
-    # hardcoded
-    current_user_id = 2
+
+    user_id = request.session.get('user_id', '')
+    current_user_id = user_id
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT bidding_amount FROM BIDDINGS
@@ -859,6 +874,7 @@ def product_detail(request, listing_id):
         'seller_name': result[21],
         'seller_rating': result[24],
         'current_bid': current_bid[0] if current_bid else None,
+        'is_winner_declared': is_winner_declared,
     }
 
     # return render(request, 'product_detail.html', {'product': product_dict})
@@ -907,6 +923,7 @@ def product_detail(request, listing_id):
         'chat_history': chat_history,
         'is_seller': is_seller,
         'is_allowed_chat': is_allowed_chat,
+        'is_winner_declared': is_winner_declared,
     })
 
 
@@ -965,7 +982,21 @@ def bid(request, listing_id):
     # enable write commnets
     handle_comment_submission(request)
 
+    #  # Check if there is already a winner for this listing
+    # is_winner = False
+    # with connection.cursor() as cursor:
+    #     cursor.execute("""
+    #         SELECT is_winner FROM BIDDINGS
+    #         WHERE listing_id = %s AND is_winner = TRUE
+    #     """, [listing_id])
+    #     is_winner = cursor.fetchone() is not None
+
+
     if request.method == 'POST':
+        # if is_winner:
+        #     # If there is already a winner, redirect to an error page or show a message.
+        #     return HttpResponse('This listing already has a winning bid and is closed for further bidding.', status=403)
+
         try:
             bid_amount = float(request.POST['bid_amount'])
 
@@ -985,7 +1016,7 @@ def bid(request, listing_id):
                 cursor.execute("""
                     INSERT INTO BIDDINGS (bidding_id, listing_id, user_id, bidding_amount, bidding_date, is_winner)
                     VALUES (%s, %s, %s, %s, %s, %s)
-                """, [new_bidding_id, listing_id, user_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), False])
+                """, [new_bidding_id, listing_id, user_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), None])
                 connection.commit()
 
             return redirect('product_detail', listing_id=listing_id)
@@ -1013,7 +1044,7 @@ def bid(request, listing_id):
         'make': result[5],
         'model': result[6],
         'price': result[10],
-        # 12334455234235423523
+    
     }
 
     user_name = request.session.get('user_name', '')
@@ -1027,6 +1058,7 @@ def bid(request, listing_id):
         'user_type': user_type,
         'is_seller': is_seller,
         'current_page': 'product_detail',
+        # 'is_winner': is_winner,
     })
 
 
@@ -1183,6 +1215,7 @@ def sell_post(request):
                     INSERT INTO LISTED_VEHICLES (VIN, seller_id, image_url, vehicle_description, make, model, fuel_type, year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_start_date, listing_end_date)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), %s);
                 """
+                print(query)
                 cursor.execute(query, (vin, user_id, image_url, vehicle_description, make, model, fuel_type,
                                year_of_production, mileage, price, exterior_color, interior_color, state, zip_code, listing_end_date))
                 connection.commit()
@@ -1304,72 +1337,6 @@ def chat_with_buyer(request):
     })
 
 
-# def choose_bid(request, listing_id):
-#     user_email = request.session.get('email', '')
-#     if user_email:
-#         update_session(request, user_email)
-
-#     user_id = request.session.get('user_id', '')
-#     user_name = request.session.get('user_name', '')
-#     user_type = request.session.get('user_type', '')
-
-#     # Check if the listing already has a winning bid
-#     with connection.cursor() as cursor:
-#         cursor.execute("""
-#             SELECT is_winner
-#             FROM BIDDINGS
-#             WHERE listing_id = %s AND is_winner = TRUE
-#         """, [listing_id])
-#         winner_exists = cursor.fetchone() is not None
-
-#     # Fetch bid details using bidding_id
-#     bids_list = []
-#     if not winner_exists:
-#         with connection.cursor() as cursor:
-#             cursor.execute("""
-#                 SELECT
-#                     b.bidding_id,
-#                     b.user_id,
-#                     b.bidding_amount,
-#                     b.bidding_date,
-#                     u.user_name,
-#                     u.balance,
-#                     (u.balance - b.bidding_amount >= 0) AS enough_money_to_pay
-#                 FROM
-#                     BIDDINGS b
-#                 JOIN
-#                     USERS u ON b.user_id = u.user_id
-#                 WHERE
-#                     b.listing_id = %s
-#                 ORDER BY
-#                     b.bidding_amount DESC
-
-#             """, [listing_id])
-
-#             bids = cursor.fetchall()
-
-
-# # Check if the results are not empty
-
-#         if bids:
-#             for bid in bids:
-#                 bids_list.append({
-#                     'bidding_id': bid[0],
-#                     'bidding_amount': bid[2],
-#                     'bidding_date': bid[3].strftime("%Y-%m-%d %H:%M:%S"),
-#                     'user_name': bid[4],
-#                     'balance': bid[5],
-#                     'enough_money_to_pay': bid[6]
-#                 })
-
-#     return render(request, 'choose_bid.html', {
-#         'winner_exists': winner_exists,
-#         'bids_list': bids_list,
-#         'user_type': user_type,
-#         'user_name': user_name,
-#         'user_id': user_id,
-#         'listing_id': listing_id,
-#     })
 def choose_bid(request, listing_id):
     user_email = request.session.get('email', '')
     if user_email:
@@ -1484,6 +1451,7 @@ def choose_bid(request, listing_id):
     # Generate a random tracking number
         tracking_number = random.randint(10000, 99999)
         is_paid = True
+        is_shipped = True
 
         # generate order record
         with connection.cursor() as cursor:
@@ -1493,9 +1461,9 @@ def choose_bid(request, listing_id):
 
             # Insert order into VEHICLE_ORDERS
             cursor.execute("""
-                    INSERT INTO VEHICLE_ORDERS (listing_id, buyer_id, seller_id, order_price, order_date, tracking_number, is_paid)
-                    VALUES (%s, %s, %s, %s, NOW(), %s, %s);
-            """, (listing_id, buyer_id, user_id, order_price, tracking_number, is_paid))
+                    INSERT INTO VEHICLE_ORDERS (listing_id, buyer_id, seller_id, order_price, order_date, tracking_number, is_paid, is_shipped)
+            VALUES (%s, %s, %s, %s, NOW(), %s, %s, %s);
+            """, (listing_id, buyer_id, user_id, order_price, tracking_number, is_paid, is_shipped))
         with connection.cursor() as cursor:
             # Update all biddings to not be the winner
             cursor.execute("""

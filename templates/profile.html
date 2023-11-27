@@ -102,6 +102,7 @@
             <th>Image</th>
             <th>Listing Date</th>
             <th>Status</th>
+            <th>Verified</th>
             <th>Choose Bid</th>
             <th>Rate Buyer</th>
         </tr>
@@ -123,14 +124,23 @@
             </td>
             <td>{{ listing.6}}</td>
             <td>{{ listing.5|yesno:"Active,Not Active" }}</td>
+            <td>{{ listing.10|yesno:"Verified,Not Verified" }}</td>
             <td>
-                {% if listing.5 == False %}
+                <!-- {% if listing.10 and not listing.5 %}
                     <a href="{% url 'choose_bid' listing_id=listing.0 %}" class="btn btn-primary">Choose Bid</a>
+                {% endif %} -->
+                <!-- Check if listing is verified and not active -->
+                {% if listing.10 and not listing.5 %}
+                <!-- If conditions are met, the button is clickable -->
+                <a href="{% url 'choose_bid' listing_id=listing.0 %}" class="btn btn-primary">Choose Bid</a>
+                {% else %}
+                <!-- If conditions are not met, the button is disabled -->
+                <button class="btn btn-primary" disabled>Choose Bid</button>
                 {% endif %}
             </td>
             <!-- New cell for Rate Buyer link -->
             <td>
-                {% if listing.10 %}
+                {% if listing.11 %}
                     <a href="{% url 'seller_rate_buyer' listing_id=listing.0 %}">rate buyer</a>
                 {% endif %}
             </td>

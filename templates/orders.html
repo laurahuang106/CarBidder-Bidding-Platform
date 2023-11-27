@@ -67,7 +67,7 @@
                 <td><img src="{{ order.2 }}" alt="Vehicle Image" style="width:100px; height:auto;"></td>
                 <td>$ {{ order.3 }}</td>
                 <td>{{ order.4 }}</td>
-                <td>{{ order.5|yesno:"Yes,No" }}</td>
+                <td>{{ order.9|yesno:"Yes,No" }}</td>
                 <td>
                     {% if order.5 %}
                         {{ order.6 }}
@@ -75,12 +75,10 @@
                         Not Shipped Yet
                     {% endif %}
                 </td>
-                <td>{{ order.7|yesno:"Yes,No" }}</td>
+                <td>{{ order.10|yesno:"Yes,No" }}</td>
                 <td>
-                    {% if order.5 and order.7 %}
+                    {% if order.8 %}
                         <a href="{% url 'buyer_rate_seller' order.0 %}">rate seller</a>
-                    {% else %}
-                        N/A
                     {% endif %}
                 </td>
             </tr>

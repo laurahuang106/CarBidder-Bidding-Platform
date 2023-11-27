@@ -80,11 +80,14 @@
             <h4>Interested? Bid here!</h4>
             {% if user_id == seller_id %}
             <p>You cannot bid on your own listings.</p>
+            {% elif user_type == 'ADMIN' %}
+            <p>Admin users can not bin on listings.</p>
+            {% elif is_winner_declared %}
+            <p>This listing has ended. A winner has been declared.</p>
             {% else %}
             <a href="bid" class="btn btn-primary mt-1 mb-3" role="button"
               >Place your bid</a
             >
-
             <!-- Display Current Bid Amount -->
             <p>
               Your current bid amount:
