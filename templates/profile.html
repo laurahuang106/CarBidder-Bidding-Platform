@@ -126,7 +126,7 @@
             <td>{{ listing.5|yesno:"Active,Not Active" }}</td>
             <td>{{ listing.10|yesno:"Verified,Not Verified" }}</td>
             <td>
-                {% if listing.5 == False %}
+                {% if listing.10 and not listing.5 %}
                     <a href="{% url 'choose_bid' listing_id=listing.0 %}" class="btn btn-primary">Choose Bid</a>
                 {% endif %}
             </td>
