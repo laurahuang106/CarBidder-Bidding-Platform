@@ -41,7 +41,7 @@ INSERT INTO LISTED_VEHICLES (listing_id, VIN, seller_id, image_url, vehicle_desc
 (20, 'VIN0000000000020', 2, 'https://res2.grays.com/handlers/imagehandler.ashx?t=sh&id=34701951&s=d&index=0&ts=637848517050000000', 'Sport Edition', 'Audi', 'A3', 'Gas', 2019, 8500, 27000, 'Gray', 'Black', 'IL', '60001', TRUE, '2023-11-21 10:00:00', '2023-12-15 10:00:00', TRUE),
 (21, 'VIN0000000000021', 3, 'https://cdn.jdpower.com/jdpa_2022%20volkswagen%20golf%20r%20blue%20front%20quarter%20view%201.jpg', 'New Model', 'Volkswagen', 'Golf', 'Gas', 2022, 1000, 23000, 'Blue', 'Beige', 'NC', '28001', TRUE, '2023-11-22 09:00:00', '2023-12-18 09:00:00', TRUE),
 (1000, 'VIN0000000000022', 2, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOAOpCjhzwv1KGzFv3kqzDP-YnNMeyxRkPDA&usqp=CAU', 'Good Condition', 'Nissan', 'Altima', 'Gas', 2023, 100, 50000.00, 'Black', 'Black', 'CA', '90001', TRUE, '2023-11-01 09:00:00', '2023-11-24 09:00:00', TRUE);
-
+(111,'VIN00000000000111',7, 'https://content.homenetiol.com/1280x960/1c0a6bb6d0974b6ca529f48cd2280f47.jpg', 'Sporty', 'Ford', 'Mustang', 'Gas', 2019, 10000, 28000, 'Yellow', 'Black', 'NV', '89001', NULL, '2023-01-14 11:00:00', '2023-01-29 11:00:00', TRUE)
 
 
 -- BIDDINGS Table
