@@ -471,7 +471,21 @@ def orders(request):
                     WHERE vo.buyer_id = %s;
                 """
                 cursor.execute(query, [user_id])
-                orders = cursor.fetchall()
+                rows = cursor.fetchall()
+                for row in rows:
+                    # Check if both is_shipped and is_paid are True
+                    is_shipped_and_paid = row[5] == b'\x01' and row[7] == b'\x01'
+                    # Check if is_shipped is True
+                    is_shipped = row[5] == b'\x01'
+                    # Check if is_paid is True
+                    is_paid = row[7] == b'\x01'
+
+                    # Append these three boolean values to the row
+                    orders.append(row + (is_shipped_and_paid, is_shipped, is_paid))
+                                    
+                
+                print(orders)
+                    
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
