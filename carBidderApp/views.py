@@ -3,7 +3,7 @@ import random
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from datetime import datetime, timedelta
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
@@ -812,11 +812,12 @@ def product_detail(request, listing_id):
     if not result:
         raise Http404("Product does not exist")
 
-    # Check if the current user has bid on this product
+    # Check if there is a declared winner for this listing
+    is_winner_declared = result[-1]
 
-    # need modification
-    # hardcoded
-    current_user_id = 2
+
+    user_id = request.session.get('user_id', '')
+    current_user_id = user_id
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT bidding_amount FROM BIDDINGS
@@ -846,6 +847,7 @@ def product_detail(request, listing_id):
         'seller_name': result[21],
         'seller_rating': result[24],
         'current_bid': current_bid[0] if current_bid else None,
+        'is_winner_declared': is_winner_declared,
     }
 
     # return render(request, 'product_detail.html', {'product': product_dict})
@@ -894,6 +896,7 @@ def product_detail(request, listing_id):
         'chat_history': chat_history,
         'is_seller': is_seller,
         'is_allowed_chat': is_allowed_chat,
+        'is_winner_declared': is_winner_declared,
     })
 
 
@@ -952,7 +955,21 @@ def bid(request, listing_id):
     # enable write commnets
     handle_comment_submission(request)
 
+    #  # Check if there is already a winner for this listing
+    # is_winner = False
+    # with connection.cursor() as cursor:
+    #     cursor.execute("""
+    #         SELECT is_winner FROM BIDDINGS
+    #         WHERE listing_id = %s AND is_winner = TRUE
+    #     """, [listing_id])
+    #     is_winner = cursor.fetchone() is not None
+
+
     if request.method == 'POST':
+        # if is_winner:
+        #     # If there is already a winner, redirect to an error page or show a message.
+        #     return HttpResponse('This listing already has a winning bid and is closed for further bidding.', status=403)
+
         try:
             bid_amount = float(request.POST['bid_amount'])
 
@@ -1000,7 +1017,7 @@ def bid(request, listing_id):
         'make': result[5],
         'model': result[6],
         'price': result[10],
-        # 12334455234235423523
+    
     }
 
     user_name = request.session.get('user_name', '')
@@ -1014,6 +1031,7 @@ def bid(request, listing_id):
         'user_type': user_type,
         'is_seller': is_seller,
         'current_page': 'product_detail',
+        # 'is_winner': is_winner,
     })
 
 
