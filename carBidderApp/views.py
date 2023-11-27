@@ -42,10 +42,15 @@ def home(request):
 
 
 def handle_comment_submission(request):
+    print('here0')
     if request.method == 'POST' and 'comment' in request.POST:
+        print('here1')
         if 'user_id' in request.session:
             user_id = request.session.get('user_id')
             report_content = request.POST.get('comment')
+            print('here2')
+            print(user_id)
+            print(report_content)
             try:
                 with connection.cursor() as cursor:
                     query = """
@@ -1132,6 +1137,8 @@ def buyer_rate_seller(request, order_id):
 
 # post new vehicle listings
 def sell_post(request):
+    handle_comment_submission(request)
+    
     user_email = request.session.get('email', '')
     if user_email:
         update_session(request, user_email)
@@ -1201,10 +1208,10 @@ def sell_post_success(request):
 
 # Chat with buyer view function
 
-
 def chat_with_buyer(request):
-    current_user_id = request.session.get(
-        'user_id', '')
+    handle_comment_submission(request)
+
+    current_user_id = request.session.get('user_id', '')
     chats = []
     chat_history = []
     selected_listing_id = None
@@ -1263,6 +1270,8 @@ def chat_with_buyer(request):
         chats = cursor.fetchall()
 
     user_id = request.session.get('user_id', '')
+    print('user_id')
+    print(user_id)
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
     is_seller = request.session.get('is_seller', '')
@@ -1569,6 +1578,7 @@ def seller_rate_buyer(request, listing_id):
         return redirect('profile')
 
     return render(request, 'seller_rate_buyer.html', {
+        'user_id': user_id,
         'user_name': user_name,
         'listing_id': listing_id,
         'user_type': user_type,
