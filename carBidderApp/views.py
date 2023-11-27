@@ -1438,6 +1438,7 @@ def choose_bid(request, listing_id):
     # Generate a random tracking number
         tracking_number = random.randint(10000, 99999)
         is_paid = True
+        is_shipped = True
 
         # generate order record
         with connection.cursor() as cursor:
@@ -1447,9 +1448,9 @@ def choose_bid(request, listing_id):
 
             # Insert order into VEHICLE_ORDERS
             cursor.execute("""
-                    INSERT INTO VEHICLE_ORDERS (listing_id, buyer_id, seller_id, order_price, order_date, tracking_number, is_paid)
-                    VALUES (%s, %s, %s, %s, NOW(), %s, %s);
-            """, (listing_id, buyer_id, user_id, order_price, tracking_number, is_paid))
+                    INSERT INTO VEHICLE_ORDERS (listing_id, buyer_id, seller_id, order_price, order_date, tracking_number, is_paid, is_shipped)
+            VALUES (%s, %s, %s, %s, NOW(), %s, %s, %s);
+            """, (listing_id, buyer_id, user_id, order_price, tracking_number, is_paid, is_shipped))
         with connection.cursor() as cursor:
             # Update all biddings to not be the winner
             cursor.execute("""
