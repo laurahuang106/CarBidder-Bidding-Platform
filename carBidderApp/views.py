@@ -972,7 +972,7 @@ def bid(request, listing_id):
                 cursor.execute("""
                     INSERT INTO BIDDINGS (bidding_id, listing_id, user_id, bidding_amount, bidding_date, is_winner)
                     VALUES (%s, %s, %s, %s, %s, %s)
-                """, [new_bidding_id, listing_id, user_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), False])
+                """, [new_bidding_id, listing_id, user_id, bid_amount, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), None])
                 connection.commit()
 
             return redirect('product_detail', listing_id=listing_id)
