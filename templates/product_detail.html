@@ -247,6 +247,7 @@
             <!-- Seller Section -->
             <div>
               <h4>Seller: {{ product.seller_name }}</h4>
+              <a href="{% url 'other_user_profile' product.seller_id %}"> Check Seller Profile</a>
               <p>Rating: {{ product.seller_rating }}</p>
             </div>
           </div>

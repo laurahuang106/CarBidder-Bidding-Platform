@@ -837,6 +837,7 @@ def product_detail(request, listing_id):
         'interior_color': result[12],
         'state': result[13],
         'zip_code': result[14],
+        'seller_id':result[19],
         'seller_name': result[21],
         'seller_rating': result[24],
         'current_bid': current_bid[0] if current_bid else None,
