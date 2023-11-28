@@ -154,20 +154,20 @@ END;
 
 
 
--- update listing_status to True when admin set is_verified to true
-DELIMITER //
+-- -- update listing_status to True when admin set is_verified to true
+-- DELIMITER //
 
-CREATE TRIGGER update_listing_status
-BEFORE UPDATE ON LISTED_VEHICLES
-FOR EACH ROW
-BEGIN
-    IF NEW.is_verified = TRUE THEN
-        SET NEW.listing_status = TRUE;
-    END IF;
-END;
+-- CREATE TRIGGER update_listing_status
+-- BEFORE UPDATE ON LISTED_VEHICLES
+-- FOR EACH ROW
+-- BEGIN
+--     IF NEW.is_verified = TRUE THEN
+--         SET NEW.listing_status = TRUE;
+--     END IF;
+-- END;
 
-//
-DELIMITER ;
+-- //
+-- DELIMITER ;
 
 
 
@@ -189,6 +189,7 @@ BEGIN
         SELECT listing_id 
         FROM LISTED_VEHICLES 
         WHERE listing_end_date < NOW() AND listing_status = TRUE;
+
 
     -- Handler for the end of the cursor loop
     DECLARE CONTINUE HANDLER 

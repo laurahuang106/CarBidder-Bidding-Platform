@@ -380,14 +380,24 @@ def verify_vehicles(request):
         new_status = None
         if verification_action == 'Verify':
             new_status = True
+            listing_status = True
         elif verification_action == 'NotVerify':
             new_status = False
+            listing_status = False
         # 'Not Started' will be represented by None, so no need for an explicit check
 
-        # Update the database
+        # # Update the database
+        # with connection.cursor() as cursor:
+        #     cursor.execute("UPDATE LISTED_VEHICLES SET is_verified = %s WHERE listing_id = %s", [
+        #                    new_status, listing_id])
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE LISTED_VEHICLES SET is_verified = %s WHERE listing_id = %s", [
-                           new_status, listing_id])
+            # The following UPDATE statement sets the is_verified and listing_status columns
+            cursor.execute("""
+                UPDATE LISTED_VEHICLES 
+                SET is_verified = %s, listing_status = %s 
+                WHERE listing_id = %s
+            """, [new_status, listing_status, listing_id])
+            connection.commit()    
 
         # Redirect to the same page to prevent form resubmission on page refresh
         return redirect('verify_vehicles')
@@ -1411,9 +1421,9 @@ def choose_bid(request, listing_id):
         #update listing_status to not active
         with connection.cursor() as cursor:
             cursor.execute("""
-                    UPDATE LISTED_VEHICLES 
-                        SET listing_status = 0;
-                        WHERE lsiting_id = %s;
+                    UPDATE LISTED_VEHICLES
+                    SET listing_status = FALSE
+                    WHERE listing_id = %s;
                     """, (listing_id))
 
         # Insert transaction data for seller
