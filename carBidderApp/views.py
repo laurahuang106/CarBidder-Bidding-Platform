@@ -725,7 +725,7 @@ def search_car(request):
         return render(request, 'search_car.html', {'error_message': error_message})
 
     # Initialize the base query
-    query = "SELECT * FROM LISTED_VEHICLES WHERE listing_status = TRUE"
+    query = "SELECT * FROM LISTED_VEHICLES WHERE listing_status = TRUE AND is_verified = TRUE"
 
     # Initialize the parameters list
     params = []
