@@ -34,7 +34,8 @@
         <tbody>
             {% for vehicle in listed_vehicles %}
                 <tr>
-                    <td>{{ vehicle.0 }}</td>
+                    <!-- <td>{{ vehicle.0 }}</td> -->
+                    <td><a href="{% url 'product_detail' listing_id=vehicle.0 %}">{{ vehicle.0 }}</a></td>
                     <td>{{ vehicle.1 }}</td>
                     <td>{{ vehicle.2 }}</td>
                     <td>{{ vehicle.3 }}</td>

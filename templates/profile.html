@@ -75,7 +75,7 @@
         <!-- Form for adding funds to own balance -->
         <div>
             <h2>Add Funds to Your Balance</h2>
-            <p>Current Balance: {{ balance }}</p>
+            <p>Current Balance: <strong>{{ balance }}</strong></p>
             <form method="post" action="{% url 'add_funds' %}">
                 {% csrf_token %}
                 <label for="amount">Amount:</label>
