@@ -43,26 +43,18 @@
     }
 </style>
 
-
-<h2>Profile page</h2>
-
-<p>User ID: {{ user_id }}</p>
-<p>User Type: {{ user_type }}</p>
-<p>User Name: {{ user_name }}</p>
-<p>Email: {{ email }}</p>
-<p>Balance: {{ balance }}</p>
-<p>Seller Rating: {{ seller_rating }}</p>
-<p>Buyer Rating: {{ buyer_rating }}</p>
-<p>Number of Seller Ratings: {{ num_of_seller_rating }}</p>
-<p>Number of Buyer Ratings: {{ num_of_buyer_rating }}</p>
-<p>Allow Chat: {{ is_allow_chat }}</p>
-<p>Allow Listing: {{ is_allow_list }}</p>
-
+<div style="text-align: center;">
+    <h2>Welcome, <strong>{{ user_name }}</strong></h2>
+    <p>User ID: <strong>{{ user_id }}</strong></p>
+    <p>User Type: <strong>{{ user_type }}</strong></p>
+    <p>User Name: <strong>{{ user_name }}</strong></p>
+    <p>Email: <strong>{{ email }}</strong></p>
+</div>
 </br>
 
 {% if user_type == "ADMIN" %}
     <!-- Content for admin users -->
-    <div>
+    <div style="text-align: center;">
         <h2>Admin Dashboard</h2>
         <!-- More admin-specific content here -->
         <a class="nav-link" href="{% url 'report' %}">Violation Report</a>
@@ -73,13 +65,17 @@
 
 {% elif user_type == "NORMAL_USER" %}
     <!-- Content for normal users -->
-    <div>
-        <h2>Welcome, normal user!</h2>
+    <div style="text-align: center;">
+        <p>Seller Rating: <strong>{{ seller_rating }}</strong> Number of Seller Ratings: <strong>{{ num_of_seller_rating }}</strong></p>
+        <p>Buyer Rating: <strong>{{ buyer_rating }}</strong> Number of Buyer Ratings: <strong>{{ num_of_buyer_rating }}</strong></p>
+        <p>Allow Chat: <strong>{% if is_allow_chat %}Yes{% else %}No{% endif %}</strong></p>
+        <p>Allow Listing: <strong>{% if is_allow_list %}Yes{% else %}No{% endif %}</strong></p>
         </br>
 
         <!-- Form for adding funds to own balance -->
         <div>
             <h2>Add Funds to Your Balance</h2>
+            <p>Current Balance: {{ balance }}</p>
             <form method="post" action="{% url 'add_funds' %}">
                 {% csrf_token %}
                 <label for="amount">Amount:</label>
