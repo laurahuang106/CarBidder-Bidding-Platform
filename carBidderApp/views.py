@@ -42,7 +42,6 @@ def home(request):
 
 
 def handle_comment_submission(request):
-    print('here0')
     if request.method == 'POST' and 'comment' in request.POST:
         print('here1')
         if 'user_id' in request.session:
@@ -825,21 +824,18 @@ def product_detail(request, listing_id):
     # If no product is found, raise a 404 error
     if not result:
         raise Http404("Product does not exist")
-
-    # Check if there is a declared winner for this listing
-    is_winner_declared = result[-1]
-
-
+    
     user_id = request.session.get('user_id', '')
     current_user_id = user_id
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT bidding_amount FROM BIDDINGS
-            WHERE listing_id = %s AND user_id = %s
-            ORDER BY bidding_date DESC
-            LIMIT 1
-        """, [listing_id, current_user_id])
+                SELECT bidding_amount FROM BIDDINGS
+                WHERE listing_id = %s AND user_id = %s
+                ORDER BY bidding_date DESC
+                LIMIT 1
+            """, [listing_id, current_user_id])
         current_bid = cursor.fetchone()
+    
 
     # Map the result to a dictionary for easy access in the template
     product_dict = {
@@ -861,9 +857,16 @@ def product_detail(request, listing_id):
         'seller_name': result[21],
         'seller_rating': result[24],
         'current_bid': current_bid[0] if current_bid else None,
-        'is_winner_declared': is_winner_declared,
+        'is_active': result[18],
     }
-
+    # print("19")
+    # print(result[19])
+    # print("18")
+    # print(result[18])
+    # print("17")
+    # print(result[17])
+    # print("16")
+    # print(result[16])
     # return render(request, 'product_detail.html', {'product': product_dict})
     if request.method == 'POST' and 'bid_amount' in request.POST:
         bid_amount = request.POST.get('bid_amount')
@@ -892,8 +895,9 @@ def product_detail(request, listing_id):
 
     # Add new chat
     seller_id = result[19]
+    is_active = result[18]
     current_user_id = request.session.get('user_id', '')
-    print(result)
+
     if add_new_chat(request, listing_id, user_id, seller_id):
         return redirect('product_detail', listing_id=listing_id)
 
@@ -910,7 +914,7 @@ def product_detail(request, listing_id):
         'chat_history': chat_history,
         'is_seller': is_seller,
         'is_allowed_chat': is_allowed_chat,
-        'is_winner_declared': is_winner_declared,
+        'is_active': is_active,
     })
 
 
@@ -1045,7 +1049,7 @@ def bid(request, listing_id):
         'user_type': user_type,
         'is_seller': is_seller,
         'current_page': 'product_detail',
-        # 'is_winner': is_winner,
+
     })
 
 
@@ -1390,6 +1394,14 @@ def choose_bid(request, listing_id):
         if bid:
             buyer_id, order_price = bid
             seller_id = request.session.get('user_id')
+
+        #update listing_status to not active
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                    UPDATE LISTED_VEHICLES 
+                        SET listing_status = 0;
+                        WHERE lsiting_id = %s;
+                    """, (listing_id))
 
         # Insert transaction data for seller
         with connection.cursor() as cursor:

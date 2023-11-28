@@ -130,7 +130,7 @@
                     <a href="{% url 'choose_bid' listing_id=listing.0 %}" class="btn btn-primary">Choose Bid</a>
                 {% endif %} -->
                 <!-- Check if listing is verified and not active -->
-                {% if listing.10 and not listing.5 %}
+                {% if listing.10 %}
                 <!-- If conditions are met, the button is clickable -->
                 <a href="{% url 'choose_bid' listing_id=listing.0 %}" class="btn btn-primary">Choose Bid</a>
                 {% else %}

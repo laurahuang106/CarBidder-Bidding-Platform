@@ -152,6 +152,8 @@ END;
 //
 
 
+
+
 -- update listing_status to True when admin set is_verified to true
 DELIMITER //
 
