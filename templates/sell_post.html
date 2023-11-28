@@ -3,7 +3,9 @@
   <div class="container mt-5">
     <h2>Vehicle Listing Form</h2>
     {% if not is_allow_list %}
-    <h4>You are not allowed to post any listing.</h4>
+    <h4>You are not allowed to post listing.</h4>
+    {% elif user_type == 'ADMIN' %}
+    <h4>Admin user cannot post any listing.</h4>
     {% else %}
     <form action="{% url 'sell_post' %}" method="post">
       {% csrf_token %}
@@ -180,6 +182,7 @@
 
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+    {% endif %}
   </div>
 
   <!-- Include Bootstrap JS and jQuery -->
@@ -187,4 +190,4 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
-{% endif %} {% endif %} {% endblock %}
+{% endif %} {% endblock %}
