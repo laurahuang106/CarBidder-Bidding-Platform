@@ -397,7 +397,7 @@ def verify_vehicles(request):
                 SET is_verified = %s, listing_status = %s 
                 WHERE listing_id = %s
             """, [new_status, listing_status, listing_id])
-            connection.commit()    
+            connection.commit()
 
         # Redirect to the same page to prevent form resubmission on page refresh
         return redirect('verify_vehicles')
@@ -490,11 +490,11 @@ def orders(request):
                     is_paid = row[7] == b'\x01'
 
                     # Append these three boolean values to the row
-                    orders.append(row + (is_shipped_and_paid, is_shipped, is_paid))
-                                    
-                
+                    orders.append(
+                        row + (is_shipped_and_paid, is_shipped, is_paid))
+
                 print(orders)
-                    
+
         except Exception as e:
             print(f"An error occurred: {e}")
             # Handle the error
@@ -847,7 +847,7 @@ def product_detail(request, listing_id):
     # If no product is found, raise a 404 error
     if not result:
         raise Http404("Product does not exist")
-    
+
     user_id = request.session.get('user_id', '')
     current_user_id = user_id
     with connection.cursor() as cursor:
@@ -858,7 +858,6 @@ def product_detail(request, listing_id):
                 LIMIT 1
             """, [listing_id, current_user_id])
         current_bid = cursor.fetchone()
-    
 
     # Map the result to a dictionary for easy access in the template
     product_dict = {
@@ -1005,7 +1004,6 @@ def bid(request, listing_id):
     #     """, [listing_id])
     #     is_winner = cursor.fetchone() is not None
 
-
     if request.method == 'POST':
         # if is_winner:
         #     # If there is already a winner, redirect to an error page or show a message.
@@ -1058,7 +1056,7 @@ def bid(request, listing_id):
         'make': result[5],
         'model': result[6],
         'price': result[10],
-    
+
     }
 
     user_name = request.session.get('user_name', '')
@@ -1206,6 +1204,7 @@ def sell_post(request):
     user_type = request.session.get('user_type', '')
     user_name = request.session.get('user_name', '')
     is_seller = request.session.get('is_seller', '')
+    is_allow_list = request.session.get('is_allow_list', '')
 
     if request.method == 'POST':
         vin = request.POST.get('vin')
@@ -1243,6 +1242,7 @@ def sell_post(request):
         'user_name': user_name,
         'user_id': user_id,
         'is_seller': is_seller,
+        "is_allow_list": is_allow_list,
         'current_page': 'sell_post',
     })
 
@@ -1267,6 +1267,7 @@ def sell_post_success(request):
     })
 
 # Chat with buyer view function
+
 
 def chat_with_buyer(request):
     handle_comment_submission(request)
@@ -1418,7 +1419,7 @@ def choose_bid(request, listing_id):
             buyer_id, order_price = bid
             seller_id = request.session.get('user_id')
 
-        #update listing_status to not active
+        # update listing_status to not active
         with connection.cursor() as cursor:
             cursor.execute("""
                     UPDATE LISTED_VEHICLES

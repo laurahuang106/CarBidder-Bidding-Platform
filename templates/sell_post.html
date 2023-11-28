@@ -2,6 +2,9 @@
 <body>
   <div class="container mt-5">
     <h2>Vehicle Listing Form</h2>
+    {% if not is_allow_list %}
+    <h4>You are not allowed to post any listing.</h4>
+    {% else %}
     <form action="{% url 'sell_post' %}" method="post">
       {% csrf_token %}
       <div class="row">
@@ -184,4 +187,4 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
-{% endif %} {% endblock %}
+{% endif %} {% endif %} {% endblock %}
