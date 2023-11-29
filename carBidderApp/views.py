@@ -378,6 +378,7 @@ def verify_vehicles(request):
         verification_action = request.POST.get('verification_action')
 
         new_status = None
+        listing_status = None
         if verification_action == 'Verify':
             new_status = True
             listing_status = True
