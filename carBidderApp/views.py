@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.db import IntegrityError
 from datetime import datetime
 from django.contrib import messages
+import time
 import openai
 from dotenv import load_dotenv
 import os
@@ -1272,6 +1273,7 @@ def sell_post_success(request):
 
 def chat_with_buyer(request):
     handle_comment_submission(request)
+    unique_token = int(time.time())
 
     current_user_id = request.session.get('user_id', '')
     chats = []
@@ -1279,25 +1281,34 @@ def chat_with_buyer(request):
     selected_listing_id = None
     selected_buyer_name = None
     selected_buyer_id = None
+    message_submitted = False
     is_allowed_chat = get_is_allowed_chat(current_user_id)
 
     # Handling message submission
     if request.method == 'POST' and 'new_message' in request.POST:
-        selected_listing_id = request.POST.get('selected_listing_id')
-        selected_buyer_name = request.POST.get('selected_buyer_name')
-        selected_buyer_id = request.POST.get('selected_buyer_id')
-        if add_new_chat(request, selected_listing_id, current_user_id, selected_buyer_id):
-            chat_history = get_chat_history(
-                selected_listing_id, current_user_id, selected_buyer_id)
+        form_token = request.POST.get('form_token')
+        if request.session.get('last_form_token') != form_token:
+            request.session['last_form_token'] = form_token
+            selected_listing_id = request.POST.get('selected_listing_id')
+            selected_buyer_name = request.POST.get('selected_buyer_name')
+            selected_buyer_id = request.POST.get('selected_buyer_id')
+            if add_new_chat(request, selected_listing_id, current_user_id, selected_buyer_id):
+                selected_listing_id = request.session.get('selected_listing_id', '')
+                sender = request.session.get('sender', '')
+                receiver = request.session.get('receiver', '')
+                chat_history = get_chat_history(selected_listing_id, sender, receiver)
+                redirect('chat_with_buyer')
 
     # Handling chat selection
-    elif request.method == 'POST' and 'selected_listing_id' in request.POST:
+    if request.method == 'POST' and 'selected_listing_id' in request.POST:
         selected_listing_id = request.POST.get('selected_listing_id')
         selected_buyer_name = request.POST.get('selected_buyer_name')
         selected_buyer_id = request.POST.get('selected_buyer_id')
-        chat_history = get_chat_history(
-            selected_listing_id, current_user_id, selected_buyer_id)
-
+        request.session['sender'] = current_user_id
+        request.session['receiver'] = selected_buyer_id
+        request.session['selected_listing_id'] = selected_listing_id
+        chat_history = get_chat_history(selected_listing_id, current_user_id, selected_buyer_id)
+    
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT 
@@ -1349,6 +1360,7 @@ def chat_with_buyer(request):
         'selected_buyer_id': selected_buyer_id,
         'chat_history': chat_history,
         'is_allowed_chat': is_allowed_chat,
+        'unique_token': unique_token,
         'current_page': 'chat_with_buyer',
     })
 
