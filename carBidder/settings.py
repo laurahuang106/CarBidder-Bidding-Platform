@@ -13,8 +13,13 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 import pymysql  # noqa: 402
+from dotenv import load_dotenv
 pymysql.version_info = (1, 4, 6, 'final', 0)  # change mysqlclient version
 pymysql.install_as_MySQLdb()
+# Load environment variables from .env file
+load_dotenv('carBidderApp/.env')
+# Access the API key
+DB_PASSWORD = os.getenv('DB_PASSWORD')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -95,7 +100,7 @@ if os.getenv('GAE_APPLICATION', None):
             'ENGINE': 'django.db.backends.mysql',
             'HOST': '/cloudsql/db-group3:us-west1:cs5200-group3-carbidder',
             'USER': 'root',
-            'PASSWORD': '',
+            'PASSWORD': DB_PASSWORD,
             'NAME': 'car_bidder',
         }
     }
@@ -105,7 +110,7 @@ else:
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'car_bidder',
             'USER': 'root',
-            'PASSWORD': '',
+            'PASSWORD': DB_PASSWORD,
             'HOST': '34.168.175.214',
             'PORT': '3306'
         }
