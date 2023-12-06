@@ -12,8 +12,14 @@
     />
     <style>
       #chatWindow {
-        height: 300px;
+        height: 400px;
+        width: 120%;
         overflow-y: scroll;
+      }
+      .chatbot-input {
+        width: 120%;
+        margin-top: 20px;
+        margin-bottom: 20px;
       }
     </style>
   </head>
@@ -23,6 +29,7 @@
         <div class="col-md-8 offset-md-2">
           <div id="chatWindow" class="border rounded p-3"></div>
           <input
+            class="chatbot-input"
             type="text"
             id="userInput"
             class="form-control my-3"
@@ -55,7 +62,11 @@
         })
           .then((response) => response.json())
           .then((data) => {
-            executeSQLQuery(data.response); // Send the response directly for SQL execution
+            // First, display the AI's response (the SQL query)
+            addMessage("AI: " + data.response);
+
+            // Then, execute the SQL query to get and display the results
+            executeSQLQuery(data.response);
           })
           .catch((error) => console.error("Error:", error));
       }
@@ -70,7 +81,10 @@
           body: JSON.stringify({ query: query }),
         })
           .then((response) => response.json())
-          .then((data) => displayTable(data))
+          .then((data) => {
+            // Call displayTable to show the results in a table format
+            displayTable(data);
+          })
           .catch((error) => console.error("Error:", error));
       }
 
@@ -78,7 +92,6 @@
         var chatWindow = document.getElementById("chatWindow");
         var table = "<table class='table'><thead><tr>";
 
-        // Assuming 'data' contains a 'data' field that is an array of records
         if (data.data && data.data.length > 0) {
           // Create table headers
           Object.keys(data.data[0]).forEach((key) => {
