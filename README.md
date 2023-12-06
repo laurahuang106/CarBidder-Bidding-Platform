@@ -1,4 +1,4 @@
-# carBidder
+# CarBidder
 
 
 # Table of contents
@@ -7,12 +7,10 @@
 3. [Features](#features)
 5. [Contributors](#contributors)
 6. [License](#license)
-7. [Questions](#questions)
 
 ## Description
 ```
-User Story
-
+Welcome to carBidder, an innovative platform designed to revolutionize the car bidding process. Our application streamlines the way users bid on cars, offering a user-friendly interface, real-time updates, and a transparent bidding system.
 
 ```
 ## Installation and Usage
@@ -25,6 +23,7 @@ pip install -r requirements.txt
 * Rename the file to `.env` and edit
 ```
 MY_API_KEY = <your api key>
+DB_PASSWORD = <your database key>
 ```
 * Run the application on localhost
 ```
@@ -36,16 +35,17 @@ python manage.py runserver
 * Bootstrap
 * Javascript
 * Django
-* OpenAI
-
-
+* MySQL
+* Google Cloud Platform(GCP)
+* OpenSQL with OpenAI
 
 
 ## Features
-* 
-* 
-* 
-* 
+* User Authentication: Secure login and registration system for users.
+* Real-time Bidding: Live updates on ongoing car auctions.
+* Car Listings: Browse a wide range of cars available for bidding.
+* Bid History: Track your previous bids and auction participation.
+* Notifications: Get real-time auction updates and bid statuses.
 
 
 ## Contributors
@@ -59,6 +59,3 @@ python manage.py runserver
 ## License
 [MIT License](https://choosealicense.com/licenses/mit/)
 
-## Questions
-
-If you have any questions about the repository contact Tianchou Gong directly at : tianchougong@gmail.com
