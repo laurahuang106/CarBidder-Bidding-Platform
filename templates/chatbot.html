@@ -54,8 +54,53 @@
           body: JSON.stringify({ message: message }),
         })
           .then((response) => response.json())
-          .then((data) => addMessage("AI: " + data.response))
+          .then((data) => {
+            executeSQLQuery(data.response); // Send the response directly for SQL execution
+          })
           .catch((error) => console.error("Error:", error));
+      }
+
+      function executeSQLQuery(query) {
+        fetch("/execute-query/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify({ query: query }),
+        })
+          .then((response) => response.json())
+          .then((data) => displayTable(data))
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function displayTable(data) {
+        var chatWindow = document.getElementById("chatWindow");
+        var table = "<table class='table'><thead><tr>";
+
+        // Assuming 'data' contains a 'data' field that is an array of records
+        if (data.data && data.data.length > 0) {
+          // Create table headers
+          Object.keys(data.data[0]).forEach((key) => {
+            table += `<th>${key}</th>`;
+          });
+          table += "</tr></thead><tbody>";
+
+          // Create table rows
+          data.data.forEach((row) => {
+            table += "<tr>";
+            Object.values(row).forEach((value) => {
+              table += `<td>${value}</td>`;
+            });
+            table += "</tr>";
+          });
+          table += "</tbody></table>";
+        } else {
+          table = "<p>No data to display.</p>";
+        }
+
+        chatWindow.innerHTML += table;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
       }
 
       function addMessage(text) {

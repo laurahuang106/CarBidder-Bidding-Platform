@@ -1094,6 +1094,25 @@ def chatbot(request):
 
 @csrf_exempt
 @require_POST
+def execute_query(request):
+    data = json.loads(request.body)
+    query = data.get('query')
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            columns = [col[0] for col in cursor.description]
+            result = [dict(zip(columns, row)) for row in rows]
+            return JsonResponse({'data': result})
+    except Exception as e:
+        print(f"Query: {query}")
+        print(f"Error: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_POST
 def chat(request):
     data = json.loads(request.body)
     user_message = data.get('message')

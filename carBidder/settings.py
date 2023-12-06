@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 pymysql.version_info = (1, 4, 6, 'final', 0)  # change mysqlclient version
 pymysql.install_as_MySQLdb()
 # Load environment variables from .env file
-load_dotenv('carBidderApp/.env')
+load_dotenv()
 # Access the API key
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 

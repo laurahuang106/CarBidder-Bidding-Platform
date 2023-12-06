@@ -49,5 +49,5 @@ urlpatterns = [
     path('sell_post_success', views.sell_post_success, name='sell_post_success'),
 
     path('choose_bid/<int:listing_id>/', views.choose_bid, name='choose_bid'),
-
+    path('execute-query/', views.execute_query, name='execute_query'),
 ]
